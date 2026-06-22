@@ -1,6 +1,6 @@
 {
   "name": "prompt-pocket",
-  "description": "Prompt Pocket — 跨 agent 的提示词口袋:记住你最常用的提示词,选中即执行;自动扫描 Claude/Codex 会话收录高频提示词。Forged by Agent Path Forge.",
+  "description": "Cross-agent prompt pocket: remember your most-used prompts and pick one to run; auto-scans Claude Code and Codex sessions to record prompts repeated 7+ times. Forged by Agent Path Forge.",
   "version": "0.1.0",
   "author": {
     "name": "lxb12123",

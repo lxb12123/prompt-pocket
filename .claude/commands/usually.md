@@ -1,12 +1,13 @@
 ---
-description: 提示词口袋——列出高频提示词并选中即执行;add/delete/edit/find 管理你常用的一句话
-argument-hint: "[add|delete|edit|find] <文本>(留空=列出并选中执行)"
+description: Prompt Pocket — list your high-frequency prompts and pick one to run; manage your go-to prompts with add/delete/edit/find
+argument-hint: "[add|delete|edit|find] <text>  (empty = list and pick one to run)"
 ---
 
-按 `skills/usually/prompt.md` 里的流程处理本次请求(它是这个技能的唯一真相源:
-判断子动作 → 调用 `node skills/usually/scripts/pocket.mjs <command>` → 用原生菜单
-让用户上下键选中 → **选中即直接代为执行**那条提示词)。
+Handle this request by following the flow in `skills/usually/prompt.md` (the single source
+of truth for this skill: decide the sub-action → run
+`node skills/usually/scripts/pocket.mjs <command>` → let the user pick from a menu →
+**run the picked prompt on their behalf**).
 
-用户这次的输入(可能为空 = 走"列出 + 选中执行"主流程):
+The user's input this turn (may be empty = run the "list + pick to run" main flow):
 
 $ARGUMENTS

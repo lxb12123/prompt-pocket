@@ -1,9 +1,9 @@
 name: usually
-description: 提示词口袋——记住你最常用的提示词,用原生菜单上下键选中后直接代为执行;支持 add/delete/edit/find 子动作,并自动扫描会话把重复 ≥7 次的提示词收录。
-when-to-use: 当用户想列出/复用自己的高频提示词(说 /usually、"我平时常说啥"、"列一下常用的"),或要 add 记一句、delete 删一句、edit 改一句、find 查一句时使用。
-argument-hint: "[add|delete|edit|find] <文本>(留空=列出并选中执行)"
-# 自描述原语(基因⑤):声明这个技能用到的能力
+description: Prompt Pocket — remembers your most-used prompts and lets you pick one to run instantly. Auto-records prompts you repeat >= 7 times across agent sessions, plus manual add/delete/edit/find. Pick-to-run and manual management work on every host; auto-scan currently covers Claude Code and Codex transcripts.
+when-to-use: Use when the user wants to list or reuse their frequent prompts (e.g. "/usually", "list my usual prompts", "what do I usually say", or in Chinese "列一下我常用的" / "我平时常说啥"), or to add / delete / edit / find a saved prompt.
+argument-hint: "[add|delete|edit|find] <text>  (empty = list and pick one to run)"
+# Self-describing primitives (gene #5): declare the capabilities this skill uses
 uses:
   mcp: []
-  permissions: []        # 留空=不限制工具:选中即执行那条提示词可能需要任意工具
+  permissions: []        # empty = no tool restriction: the picked prompt may need any tool to execute
   subagents: []

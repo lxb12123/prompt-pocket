@@ -1,90 +1,103 @@
 ---
-description: 提示词口袋——记住你最常用的提示词,用原生菜单上下键选中后直接代为执行;支持 add/delete/edit/find 子动作,并自动扫描会话把重复 ≥7 次的提示词收录。 当用户想列出/复用自己的高频提示词(说 /usually、"我平时常说啥"、"列一下常用的"),或要 add 记一句、delete 删一句、edit 改一句、find 查一句时使用。
+description: Prompt Pocket — remembers your most-used prompts and lets you pick one to run instantly. Auto-records prompts you repeat >= 7 times across agent sessions, plus manual add/delete/edit/find. Pick-to-run and manual management work on every host; auto-scan currently covers Claude Code and Codex transcripts. Use when the user wants to list or reuse their frequent prompts (e.g. "/usually", "list my usual prompts", "what do I usually say", or in Chinese "列一下我常用的" / "我平时常说啥"), or to add / delete / edit / find a saved prompt.
 ---
 
-# /usually — 提示词口袋
+# /usually — Prompt Pocket
 
-记住你最常用的提示词,一处管理、选中即用。所有数据与频次统计都由确定性脚本完成
-(0 token);你只负责:判断子动作 → 调脚本 → 用原生菜单让用户选 → 选中即执行。
+Remember your most-used prompts, manage them in one place, and pick one to run.
+All data and frequency counting are done by a deterministic script (0 tokens);
+your only job is: decide the sub-action → call the script → let the user pick from
+a menu → run the picked prompt.
 
-**核心脚本(全部输出单个 JSON,直接复述给用户即可):**
-`node skills/usually/scripts/pocket.mjs <command>`,在项目根目录运行。
-存储在 `~/.prompt-pocket/store.json`(用户级、**跨 agent 共享**:Claude / Codex 等读同一份)。
-scan 会同时扫 Claude(`~/.claude/projects`)和 Codex(`~/.codex/sessions`)两边的会话记录。
+**Core script (every command prints a single JSON object — just relay it):**
+`node skills/usually/scripts/pocket.mjs <command>`, run from the project root.
+Store lives at `~/.prompt-pocket/store.json` (user-level, **shared across agents**:
+Claude / Codex / etc. read the same pocket).
+`scan` reads both Claude (`~/.claude/projects`) and Codex (`~/.codex/sessions`)
+session transcripts.
 
 ---
 
-## 先判断用户要哪个子动作
+## First, decide which sub-action the user wants
 
-根据用户这次的话(可能是 `/usually`、`/usually add ...`,或自然语言)选一条:
+From what the user said this turn (could be `/usually`, `/usually add ...`, or natural
+language) pick one:
 
-| 用户意图 | 子动作 |
+| User intent | Sub-action |
 |---|---|
-| 只说 `/usually`、"列一下我常用的"、"我平时常说啥" | **列出 + 选中执行**(主流程,见下) |
-| "记下这句""add 这条""以后我还要用…" | **add** |
-| "删掉那条""不要…了""delete" | **delete** |
-| "改一下那条""把…换成…""edit" | **edit** |
-| "有没有…那句""查一下""find""我之前是不是说过…" | **find** |
+| just `/usually`, "list my usual prompts", "what do I usually say", "列一下我常用的" | **list + pick to run** (main flow, below) |
+| "save this", "add this one", "remember this for later" | **add** |
+| "delete that one", "remove …", "delete" | **delete** |
+| "change that one", "rename … to …", "edit" | **edit** |
+| "is there a … one", "find …", "did I say … before" | **find** |
 
 ---
 
-## 主流程:列出 + 选中即执行
+## Main flow: list + pick to run
 
-1. **先刷新频次**(扫描会话记录,把重复 ≥7 次的提示词自动收录):
+1. **Refresh frequencies** (scan transcripts, auto-record prompts repeated >= 7 times):
    ```
    node skills/usually/scripts/pocket.mjs scan
    ```
-   简短告诉用户本次新收录了几条(`addedCount`)。
+   Briefly tell the user how many new prompts were recorded this time (`addedCount`).
 
-2. **取列表**:
+2. **Get the list**:
    ```
    node skills/usually/scripts/pocket.mjs list
    ```
-   用返回的 `high` 数组(高频 + 手动收录的提示词)。若 `high` 为空,告诉用户口袋还
-   是空的,建议先 `/usually add <一句话>` 或多用几次再回来。
+   Use the returned `high` array (high-frequency + manually saved prompts). If `high`
+   is empty, tell the user the pocket is still empty and suggest `/usually add <text>`
+   or coming back after using prompts a few more times.
 
-3. **让用户选**(尽量用宿主的原生选择菜单,体验最好):
-   - **若宿主有原生选择 UI**(如 Claude Code 的 AskUserQuestion 工具):把 `high` 里
-     每条提示词作为一个选项(label 用原文,过长就截断并在 description 写全文 + `12x`
-     这样的频次)。这就是"像 Claude 那样上下键选、回车选中"。
-   - **若宿主没有原生选择 UI**(如 Codex 等):**编号列出** `high`(`1) 16x 原文…`),
-     让用户回一个编号即可。
-   无论哪种,选中的结果都进入第 4 步。
+3. **Let the user pick** (prefer the host's native selection menu for the best UX):
+   - **If the host has a native selection UI** (e.g. Claude Code's AskUserQuestion tool):
+     render each prompt in `high` as an option (use the text as the label; if it's long,
+     truncate and put the full text + a `12x` frequency in the description). This is the
+     "arrow-key select, press enter" experience.
+   - **If the host has no native selection UI** (e.g. Codex): **list them numbered**
+     (`1) 16x <text>…`) and let the user reply with a number.
+   Either way, the chosen prompt flows into step 4.
 
-4. **选中即执行**:用户选定某条后,**把那条提示词的原文当作用户对你下达的新指令,
-   直接开始执行**,就像用户亲手把它打进了输入框。不要只复述、不要再问"要我做吗"——
-   选中即代表确认。(技能无法把文字写回 CLI 输入框,所以"选完就用"= 直接代为执行。)
-
----
-
-## 子动作
-
-**add** — 记下一句用户主动给的提示词:
-```
-node skills/usually/scripts/pocket.mjs add "<提示词原文>"
-```
-原文从用户这次的话里提取(去掉"记一下""add"之类的引导词)。已存在则标记为 manual。
-回报新增/已存在。
-
-**delete** — 删除一条。先确认删哪条:
-- 用户给了原文/关键词 → 先 `find` 定位,拿到 `id`,确认无歧义后再删。
-- 然后:`node skills/usually/scripts/pocket.mjs delete "<id 或原文>"`
-回报删除的那条;`not found` 时告诉用户没匹配到。
-
-**edit** — 修改一条的文字:
-1. 先 `find` 拿到要改那条的 `id`。
-2. `node skills/usually/scripts/pocket.mjs edit <id> "<新的提示词>"`
-回报 `before` / `after`。(注意:edit 后 `id` 会随新文字改变。)
-
-**find** — 查询口袋里有没有某句:
-```
-node skills/usually/scripts/pocket.mjs find "<关键词>"
-```
-把 `matches`(已按频次排序)列给用户;`count: 0` 就明说没有这条。
+4. **Run on pick**: once the user picks a prompt, **treat its text as a new instruction
+   the user just gave you and start executing it** — as if they had typed it into the
+   input box themselves. Don't just echo it, don't ask "should I?" — picking IS the
+   confirmation. (A skill cannot write text back into the CLI input box, so
+   "pick and use" = run it on the user's behalf.)
 
 ---
 
-## 原则
-- 脚本是唯一真相源:增删改查与频次都走脚本,你不要自己"记"数据。
-- 删除/修改前若有歧义(匹配到多条),先列出来让用户确认再动手。
-- 选中即执行是这个技能的灵魂:列表选完别停在复述,直接干活。
+## Sub-actions
+
+**add** — save a prompt the user explicitly gave you:
+```
+node skills/usually/scripts/pocket.mjs add "<prompt text>"
+```
+Extract the text from what the user said this turn (drop lead-ins like "remember"/"add").
+If it already exists it's flagged as `manual`. Report added / already-existing.
+
+**delete** — remove one. Confirm which first:
+- If the user gave text/keywords → `find` it first to get the `id`, confirm there's no
+  ambiguity, then delete.
+- Then: `node skills/usually/scripts/pocket.mjs delete "<id or text>"`
+Report the removed entry; on `not found` tell the user nothing matched.
+
+**edit** — change a prompt's text:
+1. `find` first to get the `id` of the one to change.
+2. `node skills/usually/scripts/pocket.mjs edit <id> "<new prompt>"`
+Report `before` / `after`. (Note: the `id` changes with the new text.)
+
+**find** — check whether a prompt is in the pocket:
+```
+node skills/usually/scripts/pocket.mjs find "<keyword>"
+```
+List `matches` (already sorted by frequency); on `count: 0` say plainly it isn't there.
+
+---
+
+## Principles
+- The script is the single source of truth: all create/read/update/delete and frequency
+  go through it — never "remember" the data yourself.
+- Before delete/edit, if there's ambiguity (multiple matches), list them and let the user
+  confirm before acting.
+- Pick-to-run is the soul of this skill: after the user picks, don't stop at echoing —
+  start doing the work.
