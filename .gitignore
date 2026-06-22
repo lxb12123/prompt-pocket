@@ -1,0 +1,12 @@
+# OS / editor cruft
+.DS_Store
+
+# Node
+node_modules/
+
+# Runtime observability (local-only, may contain local paths)
+.gene/trace.jsonl
+
+# The user's prompt pocket is stored in ~/.prompt-pocket — never in-repo,
+# but guard against an accidental local copy.
+.prompt-pocket/
