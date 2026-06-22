@@ -1,5 +1,5 @@
 ---
-description: Prompt Pocket — remembers your most-used prompts and lets you pick one to run instantly. Auto-records prompts you repeat >= 7 times across agent sessions, plus manual add/delete/edit/find. Pick-to-run and manual management work on every host; auto-scan currently covers Claude Code and Codex transcripts. Use when the user wants to list or reuse their frequent prompts (e.g. "/usually", "list my usual prompts", "what do I usually say", or in Chinese "列一下我常用的" / "我平时常说啥"), or to add / delete / edit / find a saved prompt.
+description: Prompt Pocket — remembers your most-used prompts and lets you pick one to run instantly. Auto-records prompts you repeat >= 7 times across agent sessions, plus manual add/delete/edit/find. Pick-to-run and manual management work on every host; auto-scan covers Claude Code, Codex and OpenCode sessions. Use when the user wants to list or reuse their frequent prompts (e.g. "/usually", "list my usual prompts", "what do I usually say", or in Chinese "列一下我常用的" / "我平时常说啥"), or to add / delete / edit / find a saved prompt.
 ---
 
 # /usually — Prompt Pocket
@@ -9,10 +9,20 @@ All data and frequency counting are done by a deterministic script (0 tokens);
 your only job is: decide the sub-action → call the script → let the user pick from
 a menu → run the picked prompt.
 
-**Core script (every command prints a single JSON object — just relay it):**
-`node skills/usually/scripts/pocket.mjs <command>`, run from the project root.
+## The script (run this; it prints a single JSON object — just relay it)
+
+The deterministic core is `pocket.mjs`. **Resolve its path once, then reuse it:**
+
+- Preferred: `~/.prompt-pocket/pocket.mjs` (absolute — works on every host and from any
+  directory, including global / plugin installs).
+- In this repo: `skills/usually/scripts/pocket.mjs` also works.
+- **Bootstrap** (do this if `~/.prompt-pocket/pocket.mjs` is missing and you can see the
+  repo copy): `mkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs`
+
+Below, `POCKET` means whichever path exists — e.g. run `node ~/.prompt-pocket/pocket.mjs <command>`.
+
 Store lives at `~/.prompt-pocket/store.json` (user-level, **shared across agents**:
-Claude / Codex / etc. read the same pocket).
+Claude / Codex / OpenCode read the same pocket).
 `scan` reads Claude (`~/.claude/projects`), Codex (`~/.codex/sessions`) and OpenCode
 (`~/.local/share/opencode/opencode.db`) session history.
 
@@ -35,15 +45,15 @@ language) pick one:
 
 ## Main flow: list + pick to run
 
-1. **Refresh frequencies** (scan transcripts, auto-record prompts repeated >= 7 times):
+1. **Refresh frequencies** (scan sessions, auto-record prompts repeated >= 7 times):
    ```
-   node skills/usually/scripts/pocket.mjs scan
+   node ~/.prompt-pocket/pocket.mjs scan
    ```
    Briefly tell the user how many new prompts were recorded this time (`addedCount`).
 
 2. **Get the list**:
    ```
-   node skills/usually/scripts/pocket.mjs list
+   node ~/.prompt-pocket/pocket.mjs list
    ```
    Use the returned `high` array (high-frequency + manually saved prompts). If `high`
    is empty, tell the user the pocket is still empty and suggest `/usually add <text>`
@@ -54,8 +64,8 @@ language) pick one:
      render each prompt in `high` as an option (use the text as the label; if it's long,
      truncate and put the full text + a `12x` frequency in the description). This is the
      "arrow-key select, press enter" experience.
-   - **If the host has no native selection UI** (e.g. Codex): **list them numbered**
-     (`1) 16x <text>…`) and let the user reply with a number.
+   - **If the host has no native selection UI** (e.g. Codex / OpenCode TUI): **list them
+     numbered** (`1) 16x <text>…`) and let the user reply with a number.
    Either way, the chosen prompt flows into step 4.
 
 4. **Run on pick**: once the user picks a prompt, **treat its text as a new instruction
@@ -70,7 +80,7 @@ language) pick one:
 
 **add** — save a prompt the user explicitly gave you:
 ```
-node skills/usually/scripts/pocket.mjs add "<prompt text>"
+node ~/.prompt-pocket/pocket.mjs add "<prompt text>"
 ```
 Extract the text from what the user said this turn (drop lead-ins like "remember"/"add").
 If it already exists it's flagged as `manual`. Report added / already-existing.
@@ -78,17 +88,17 @@ If it already exists it's flagged as `manual`. Report added / already-existing.
 **delete** — remove one. Confirm which first:
 - If the user gave text/keywords → `find` it first to get the `id`, confirm there's no
   ambiguity, then delete.
-- Then: `node skills/usually/scripts/pocket.mjs delete "<id or text>"`
+- Then: `node ~/.prompt-pocket/pocket.mjs delete "<id or text>"`
 Report the removed entry; on `not found` tell the user nothing matched.
 
 **edit** — change a prompt's text:
 1. `find` first to get the `id` of the one to change.
-2. `node skills/usually/scripts/pocket.mjs edit <id> "<new prompt>"`
+2. `node ~/.prompt-pocket/pocket.mjs edit <id> "<new prompt>"`
 Report `before` / `after`. (Note: the `id` changes with the new text.)
 
 **find** — check whether a prompt is in the pocket:
 ```
-node skills/usually/scripts/pocket.mjs find "<keyword>"
+node ~/.prompt-pocket/pocket.mjs find "<keyword>"
 ```
 List `matches` (already sorted by frequency); on `count: 0` say plainly it isn't there.
 

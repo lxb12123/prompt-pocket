@@ -21,9 +21,10 @@ compiles to each host's native format:
 | **Claude Code** | `/plugin install` (or `.claude/skills/`) | ✅ native arrow‑key menu | ✅ scans `~/.claude/projects` |
 | **Codex** | `~/.codex/skills/` or project `AGENTS.md` | ✅ numbered list | ✅ scans `~/.codex/sessions` |
 | **OpenCode** | native `SKILL.md` (`.opencode/skills/`, `.claude/skills/`) + `AGENTS.md` | ✅ numbered list | ✅ scans `~/.local/share/opencode/opencode.db` |
-| **Cursor** | `.cursor/rules/` (auto‑loads) | ✅ | manual add (scan: add a reader) |
-| **GitHub Copilot** | `AGENTS.md` / `~/.agents/skills/` | ✅ | manual add (scan: add a reader) |
-| **Gemini CLI** | `AGENTS.md` / `~/.agents/skills/` | ✅ | manual add (scan: add a reader) |
+| **Cursor** | `.cursor/rules/` + `AGENTS.md` (auto‑loads); SKILL.md skills (v2.4+) | ✅ | manual add (scan: add a reader) |
+| **GitHub Copilot** | `SKILL.md` in `.agents/skills` / `~/.copilot/skills` + `AGENTS.md` | ✅ | manual add (scan: add a reader) |
+| **Gemini CLI** | `AGENTS.md` / `GEMINI.md` context | ✅ | manual add (scan: add a reader) |
+| **Any other** (Windsurf, Cline, Zed, Amp…) | `AGENTS.md` / `.agents/skills/` open standard | ✅ | manual add (scan: add a reader) |
 
 **The whole experience — list, pick‑to‑run, and manual `add` / `delete` / `edit` /
 `find` — works on every host.** The one host‑specific piece is the *automatic* recording
@@ -39,43 +40,98 @@ a prompt in Codex, reuse it in Claude Code.
 
 ## Quick start
 
-### Claude Code
+There are two ways to use it on any host:
+
+- **Project‑scoped** — `git clone` this repo and open/run your agent inside it. Every host
+  file (`AGENTS.md`, native `SKILL.md`, `.cursor/rules/`, …) is already present and the
+  skill activates automatically. Nothing to install.
+- **Global** — install the skill into your agent's home dir so it works in *any* project.
+
+For global use, run this **once** so the deterministic core is reachable from anywhere
+(every host below calls it by this absolute path):
+
+```bash
+git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket
+mkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs
+```
+
+Then pick your platform:
+
+### 1. Claude Code
 
 ```text
 /plugin marketplace add lxb12123/prompt-pocket
 /plugin install prompt-pocket@prompt-pocket-marketplace
 ```
 
-Then type `/usually` in any project.
+Invoke: type `/usually` (or "list my usual prompts"). Manual global skill: copy
+`.claude/skills/usually/` into `~/.claude/skills/`.
 
-### Codex (also Copilot / Gemini)
+### 2. Codex
 
 ```bash
-# Native skill install — Codex loads SKILL.md skills from its skills dir:
-cp -r skills/* ~/.codex/skills/     # cross-runtime (Codex + Copilot + Gemini): ~/.agents/skills/
+# Codex loads SKILL.md skills from its skills dir (global, any project):
+cp -r .agents/skills/usually ~/.codex/skills/usually
 ```
 
-Or project‑scoped: append this plugin's `AGENTS.md` into your project‑root `AGENTS.md`.
-Hosts concatenate `AGENTS.md` from the repo root down — it's additive and never overrides
-your own. Then just say "list my usual prompts".
+Invoke: say "list my usual prompts" (Codex has no slash UI). Project‑scoped alternative:
+the repo's `AGENTS.md` is picked up automatically when you run Codex in the repo.
 
-### OpenCode
-
-OpenCode natively loads `SKILL.md` skills and reads `AGENTS.md`. This repo ships both, so
-project‑scoped it works out of the box (open the repo and say "list my usual prompts" or
-type `/usually`). For any project, install globally:
+### 3. OpenCode
 
 ```bash
 # Native skill (OpenCode reads SKILL.md from its skills dir):
-cp -r .opencode/skills/* ~/.config/opencode/skills/
+cp -r .opencode/skills/usually ~/.config/opencode/skills/usually
 # Optional: the /usually slash command
-cp -r .opencode/commands/* ~/.config/opencode/commands/
+mkdir -p ~/.config/opencode/commands && cp .opencode/commands/usually.md ~/.config/opencode/commands/usually.md
 ```
 
-### Cursor
+Invoke: type `/usually`, or just ask — OpenCode loads the skill on demand. (Project‑scoped:
+`.opencode/`, `.claude/skills/` and `AGENTS.md` in the repo all work out of the box.)
 
-This repo already ships `.cursor/rules/` — open the project in Cursor and the rule loads
-automatically.
+### 4. Cursor
+
+```bash
+# Skill (Cursor reads SKILL.md skills, v2.4+):
+cp -r .agents/skills/usually ~/.cursor/skills/usually   # or per-project: .cursor/ already shipped
+```
+
+Invoke: open the project — `.cursor/rules/usually.mdc` and `AGENTS.md` load automatically;
+then ask "list my usual prompts". The agent runs the pocket script for you.
+
+### 5. GitHub Copilot
+
+```bash
+# Personal skill (Copilot reads ~/.copilot/skills or ~/.agents/skills; SKILL.md needs a name: field — included):
+mkdir -p ~/.copilot/skills && cp -r .agents/skills/usually ~/.copilot/skills/usually
+```
+
+Invoke: in agent mode, ask "list my usual prompts". Project‑scoped: this repo ships
+`.agents/skills/usually/SKILL.md`, which Copilot also reads from a repo's `.agents/skills/`.
+
+### 6. Gemini CLI
+
+```bash
+# Gemini reads AGENTS.md project context; or add the /usually command:
+mkdir -p ~/.gemini/commands
+```
+
+Project‑scoped: run `gemini` in the repo — it reads `AGENTS.md` and learns the skill; ask
+"list my usual prompts". (Gemini's custom commands use TOML in `~/.gemini/commands/`; the
+AGENTS.md route needs no extra setup.)
+
+### 7. Any other AGENTS.md / SKILL.md agent (Windsurf, Cline, Zed, Amp, …)
+
+`SKILL.md` + `AGENTS.md` are a cross‑agent open standard. For hosts not listed above, drop
+the skill into the shared location most of them read:
+
+```bash
+mkdir -p ~/.agents/skills && cp -r .agents/skills/usually ~/.agents/skills/usually
+```
+
+or, project‑scoped, just open the repo — the agent reads `AGENTS.md`. Pick‑to‑run and
+manual `add/find/edit/delete` work everywhere; **auto‑scan** is the only host‑specific part
+(see [Adding a platform](#adding-a-platform) to wire up a new agent's session format).
 
 ---
 
@@ -143,9 +199,13 @@ prompt-pocket/
 │   └── reference/               # store & scan rules, read on demand
 ├── commands/usually.md          # Claude / generic slash-command entry point
 ├── .opencode/                   # OpenCode-native skill + /usually command
+├── .agents/skills/usually/      # cross-agent SKILL.md (Copilot, Cursor, Windsurf, …)
 ├── AGENTS.md                    # open standard — Codex / Cursor / Copilot / Gemini / OpenCode
 └── .cursor/rules/               # native Cursor rule
 ```
+
+> The per‑host skill files (`.claude/`, `.opencode/`, `.agents/`) all mirror the single
+> source of truth, `skills/usually/prompt.md`, and call the same `pocket.mjs`.
 
 ## License
 
