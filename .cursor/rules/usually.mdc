@@ -14,8 +14,8 @@ a menu → run the picked prompt.
 `node skills/usually/scripts/pocket.mjs <command>`, run from the project root.
 Store lives at `~/.prompt-pocket/store.json` (user-level, **shared across agents**:
 Claude / Codex / etc. read the same pocket).
-`scan` reads both Claude (`~/.claude/projects`) and Codex (`~/.codex/sessions`)
-session transcripts.
+`scan` reads Claude (`~/.claude/projects`), Codex (`~/.codex/sessions`) and OpenCode
+(`~/.local/share/opencode/opencode.db`) session history.
 
 ---
 

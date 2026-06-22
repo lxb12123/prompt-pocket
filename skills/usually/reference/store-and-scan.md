@@ -26,12 +26,13 @@ etc. all read and write the same pocket. On first run, if a legacy store is foun
 For each agent present on the machine, a "human input only" rule extracts typed prompts;
 counts are merged across agents:
 
-| Agent | Session dir | Event taken | Text taken |
+| Agent | Session store | Event taken | Text taken |
 |---|---|---|---|
 | Claude Code | `~/.claude/projects/**/*.jsonl` | `type:"user"` with `promptSource:"typed"` | `message.content` (string or text blocks) |
 | Codex CLI | `~/.codex/sessions/**/*.jsonl` | `type:"event_msg"` with `payload.type:"user_message"` | `payload.message` |
+| OpenCode | `~/.local/share/opencode/opencode.db` (SQLite, via `node:sqlite`) | `part` rows with `data.type:"text"` whose parent `message.data.role:"user"` | `data.text` |
 
-- Both go through the same `cleanCandidate`: collapse whitespace, strip a pasted prompt
+- All sources go through the same `cleanCandidate`: collapse whitespace, strip a pasted prompt
   glyph (`❯ ` / `› ` / `> `), skip length < 3, skip lines starting with `/` (slash
   commands) or `#` (Codex injects "# Files mentioned…"), and skip noise containing
   `<command…>` / `<system-reminder>` / `Caveat:` / `[Request interrupted`.
@@ -40,9 +41,12 @@ counts are merged across agents:
   agents, it is auto-recorded with `source:"auto"`.
 
 > Note: Claude's jsonl has `promptSource`, which pinpoints genuinely human-typed input.
-> Codex's schema has no equivalent field, so it relies on `cleanCandidate` to filter
+> Codex and OpenCode have no equivalent field, so they rely on `cleanCandidate` to filter
 > injected content — slightly higher noise tolerance, but threshold 7 filters out the
-> occasional noise. To support another agent, just add one more `xxxTexts()` reader per
+> occasional noise. The OpenCode reader uses Node's `node:sqlite` (Node 22+) read-only and
+> is wrapped in try/catch: a missing API, a locked db, or a schema change degrades silently
+> (OpenCode is skipped) and never breaks the Claude/Codex scan. To support another agent,
+> just add one more `xxxTexts()` reader per
 > the table above; nothing else changes.
 
 ## list semantics

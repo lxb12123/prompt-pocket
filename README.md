@@ -20,16 +20,17 @@ compiles to each host's native format:
 |---|---|---|---|
 | **Claude Code** | `/plugin install` (or `.claude/skills/`) | ✅ native arrow‑key menu | ✅ scans `~/.claude/projects` |
 | **Codex** | `~/.codex/skills/` or project `AGENTS.md` | ✅ numbered list | ✅ scans `~/.codex/sessions` |
+| **OpenCode** | native `SKILL.md` (`.opencode/skills/`, `.claude/skills/`) + `AGENTS.md` | ✅ numbered list | ✅ scans `~/.local/share/opencode/opencode.db` |
 | **Cursor** | `.cursor/rules/` (auto‑loads) | ✅ | manual add (scan: add a reader) |
 | **GitHub Copilot** | `AGENTS.md` / `~/.agents/skills/` | ✅ | manual add (scan: add a reader) |
 | **Gemini CLI** | `AGENTS.md` / `~/.agents/skills/` | ✅ | manual add (scan: add a reader) |
 
 **The whole experience — list, pick‑to‑run, and manual `add` / `delete` / `edit` /
 `find` — works on every host.** The one host‑specific piece is the *automatic* recording
-of prompts you've repeated 7+ times, which has to parse each agent's own transcript
-format. Today that's wired up for **Claude Code** and **Codex**; adding another platform
-is a single reader function (see [Adding a platform](#adding-a-platform)). On hosts
-without a scanner you simply use `add` to record prompts yourself.
+of prompts you've repeated 7+ times, which has to parse each agent's own session format.
+Today that's wired up for **Claude Code**, **Codex** and **OpenCode**; adding another
+platform is a single reader function (see [Adding a platform](#adding-a-platform)). On
+hosts without a scanner you simply use `add` to record prompts yourself.
 
 The store lives at `~/.prompt-pocket/store.json` and is **shared by every agent** — record
 a prompt in Codex, reuse it in Claude Code.
@@ -57,6 +58,19 @@ cp -r skills/* ~/.codex/skills/     # cross-runtime (Codex + Copilot + Gemini): 
 Or project‑scoped: append this plugin's `AGENTS.md` into your project‑root `AGENTS.md`.
 Hosts concatenate `AGENTS.md` from the repo root down — it's additive and never overrides
 your own. Then just say "list my usual prompts".
+
+### OpenCode
+
+OpenCode natively loads `SKILL.md` skills and reads `AGENTS.md`. This repo ships both, so
+project‑scoped it works out of the box (open the repo and say "list my usual prompts" or
+type `/usually`). For any project, install globally:
+
+```bash
+# Native skill (OpenCode reads SKILL.md from its skills dir):
+cp -r .opencode/skills/* ~/.config/opencode/skills/
+# Optional: the /usually slash command
+cp -r .opencode/commands/* ~/.config/opencode/commands/
+```
 
 ### Cursor
 
@@ -88,7 +102,7 @@ single deterministic Node script, so the model never has to "remember" your data
 
 ```bash
 node skills/usually/scripts/pocket.mjs list      # show the pocket
-node skills/usually/scripts/pocket.mjs scan      # scan Claude + Codex sessions, record ≥7× prompts
+node skills/usually/scripts/pocket.mjs scan      # scan Claude + Codex + OpenCode sessions, record ≥7× prompts
 node skills/usually/scripts/pocket.mjs add  "<text>"
 node skills/usually/scripts/pocket.mjs find "<keyword>"
 ```
@@ -97,9 +111,10 @@ node skills/usually/scripts/pocket.mjs find "<keyword>"
 
 ## Adding a platform
 
-The scanner reads "human‑typed input only" per agent and merges the counts. To support a
-new agent, add one reader to `skills/usually/scripts/pocket.mjs` following the existing
-ones:
+The scanner reads "human‑typed input only" per agent and merges the counts. Each agent has
+one small reader (`claudeTexts` / `codexTexts` / `opencodeTexts`) — jsonl or SQLite,
+whatever the host uses. To support a new agent, add one reader to
+`skills/usually/scripts/pocket.mjs` following the existing ones:
 
 ```js
 function myAgentTexts() {
@@ -126,8 +141,9 @@ prompt-pocket/
 │   ├── prompt.md                # the skill's instructions (single source of truth)
 │   ├── scripts/pocket.mjs       # deterministic core: store + CRUD + cross-agent scan
 │   └── reference/               # store & scan rules, read on demand
-├── commands/usually.md          # slash-command entry point
-├── AGENTS.md                    # open standard — Codex / Cursor / Copilot / Gemini
+├── commands/usually.md          # Claude / generic slash-command entry point
+├── .opencode/                   # OpenCode-native skill + /usually command
+├── AGENTS.md                    # open standard — Codex / Cursor / Copilot / Gemini / OpenCode
 └── .cursor/rules/               # native Cursor rule
 ```
 

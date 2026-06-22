@@ -1,5 +1,6 @@
 ---
-description: Prompt Pocket — remembers your most-used prompts and lets you pick one to run instantly. Auto-records prompts you repeat >= 7 times across agent sessions, plus manual add/delete/edit/find. Pick-to-run and manual management work on every host; auto-scan currently covers Claude Code and Codex transcripts. Use when the user wants to list or reuse their frequent prompts (e.g. "/usually", "list my usual prompts", "what do I usually say", or in Chinese "列一下我常用的" / "我平时常说啥"), or to add / delete / edit / find a saved prompt.
+name: usually
+description: Prompt Pocket — remembers your most-used prompts and lets you pick one to run instantly. Auto-records prompts you repeat >= 7 times across agent sessions, plus manual add/delete/edit/find. Pick-to-run and manual management work on every host; auto-scan covers Claude Code, Codex and OpenCode sessions. Use when the user wants to list or reuse their frequent prompts (e.g. "/usually", "list my usual prompts", "what do I usually say", or in Chinese "列一下我常用的" / "我平时常说啥"), or to add / delete / edit / find a saved prompt.
 ---
 
 # /usually — Prompt Pocket
@@ -12,7 +13,7 @@ a menu → run the picked prompt.
 **Core script (every command prints a single JSON object — just relay it):**
 `node skills/usually/scripts/pocket.mjs <command>`, run from the project root.
 Store lives at `~/.prompt-pocket/store.json` (user-level, **shared across agents**:
-Claude / Codex / etc. read the same pocket).
+Claude / Codex / OpenCode read the same pocket).
 `scan` reads Claude (`~/.claude/projects`), Codex (`~/.codex/sessions`) and OpenCode
 (`~/.local/share/opencode/opencode.db`) session history.
 
@@ -50,19 +51,17 @@ language) pick one:
    or coming back after using prompts a few more times.
 
 3. **Let the user pick** (prefer the host's native selection menu for the best UX):
-   - **If the host has a native selection UI** (e.g. Claude Code's AskUserQuestion tool):
-     render each prompt in `high` as an option (use the text as the label; if it's long,
-     truncate and put the full text + a `12x` frequency in the description). This is the
-     "arrow-key select, press enter" experience.
-   - **If the host has no native selection UI** (e.g. Codex): **list them numbered**
-     (`1) 16x <text>…`) and let the user reply with a number.
+   - **If the host has a native selection UI**: render each prompt in `high` as an option
+     (use the text as the label; if it's long, truncate and put the full text + a `12x`
+     frequency in the description). This is the "arrow-key select, press enter" experience.
+   - **If the host has no native selection UI** (e.g. Codex / OpenCode TUI): **list them
+     numbered** (`1) 16x <text>…`) and let the user reply with a number.
    Either way, the chosen prompt flows into step 4.
 
 4. **Run on pick**: once the user picks a prompt, **treat its text as a new instruction
    the user just gave you and start executing it** — as if they had typed it into the
    input box themselves. Don't just echo it, don't ask "should I?" — picking IS the
-   confirmation. (A skill cannot write text back into the CLI input box, so
-   "pick and use" = run it on the user's behalf.)
+   confirmation.
 
 ---
 

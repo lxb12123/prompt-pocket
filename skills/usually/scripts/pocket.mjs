@@ -4,8 +4,9 @@
 //
 // Store:  ~/.prompt-pocket/store.json   (host-neutral, shared by every agent)
 // Scan sources (whichever exist on the machine):
-//   - Claude Code:  ~/.claude/projects/**/*.jsonl   (type:user, promptSource:typed)
-//   - Codex CLI:    ~/.codex/sessions/**/*.jsonl     (event_msg, payload.type:user_message)
+//   - Claude Code:  ~/.claude/projects/**/*.jsonl              (type:user, promptSource:typed)
+//   - Codex CLI:    ~/.codex/sessions/**/*.jsonl                (event_msg, payload.type:user_message)
+//   - OpenCode:     ~/.local/share/opencode/opencode.db         (SQLite: part.text where message.role=user)
 //
 // Usage:  node skills/usually/scripts/pocket.mjs <command> [args]
 //   list                     list prompts (sorted by count; high-frequency flagged)
@@ -20,6 +21,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSy
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 import { createHash } from 'node:crypto';
+import { createRequire } from 'node:module';
 
 const THRESHOLD = 7;                       // auto-record once a prompt is repeated this many times
 const HOME = homedir();
@@ -135,11 +137,40 @@ function codexTexts() {
   });
 }
 
+// OpenCode: stores sessions in SQLite. User text = part rows (data.type === 'text')
+// whose parent message has data.role === 'user'. Uses node:sqlite (Node 22+), read-only.
+// Wrapped so a missing API, locked db, or schema drift degrades silently (skip OpenCode).
+function opencodeTexts() {
+  const db = join(HOME, '.local', 'share', 'opencode', 'opencode.db');
+  if (!existsSync(db)) return [];
+  const texts = [];
+  try {
+    const require = createRequire(import.meta.url);
+    const { DatabaseSync } = require('node:sqlite');
+    const conn = new DatabaseSync(db, { readOnly: true });
+    const rows = conn.prepare(
+      `SELECT json_extract(p.data, '$.text') AS text
+         FROM part p JOIN message m ON p.message_id = m.id
+        WHERE json_extract(m.data, '$.role') = 'user'
+          AND json_extract(p.data, '$.type') = 'text'
+          AND json_extract(p.data, '$.text') IS NOT NULL`
+    ).all();
+    conn.close();
+    for (const r of rows) {
+      const t = cleanCandidate(r.text);
+      if (t) texts.push(t);
+    }
+  } catch {
+    return [];   // node:sqlite unavailable / db locked / schema changed — skip OpenCode, never fail the scan
+  }
+  return texts;
+}
+
 // ---- commands -------------------------------------------------------------
 
 function cmdScan() {
-  const bySource = { claude: claudeTexts(), codex: codexTexts() };
-  const texts = [...bySource.claude, ...bySource.codex];
+  const bySource = { claude: claudeTexts(), codex: codexTexts(), opencode: opencodeTexts() };
+  const texts = [...bySource.claude, ...bySource.codex, ...bySource.opencode];
   const counts = new Map();                            // key -> { text, count }
   for (const t of texts) {
     const k = keyOf(t);
@@ -168,7 +199,7 @@ function cmdScan() {
   out({
     ok: true, action: 'scan', threshold: THRESHOLD,
     scanned: texts.length,
-    bySource: { claude: bySource.claude.length, codex: bySource.codex.length },
+    bySource: { claude: bySource.claude.length, codex: bySource.codex.length, opencode: bySource.opencode.length },
     addedCount: added.length, updatedCount: updated.length, added, updated,
   });
 }
