@@ -1,6 +1,6 @@
 ---
-description: Prompt Pocket — list your high-frequency prompts and pick one to run; manage your go-to prompts with add/delete/edit/find
-argument-hint: "[add|delete|edit|find] <text>  (empty = list and pick one to run)"
+description: Prompt Pocket — list your high-frequency prompts and pick one to run; manage your go-to prompts with add/delete/edit/find. Generates a native slash dropdown so you can pick a saved prompt directly.
+argument-hint: "type /usually: to run a saved prompt · or add|find|edit|delete"
 ---
 
 Handle this request by following the flow in `skills/usually/prompt.md` (the single source

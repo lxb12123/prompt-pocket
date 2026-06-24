@@ -55,6 +55,32 @@ counts are merged across agents:
   i.e. scanned high-frequency items plus prompts the user explicitly `add`-ed (manual
   items show even with a low count).
 
+## Native dropdown (generated command files)
+`sync` (run automatically at the end of `scan`/`add`/`edit`/`delete`, or on demand)
+writes one command/prompt file per `high` prompt into each installed host's command dir,
+so the saved prompts appear directly in the host's native `/` dropdown (arrow-pick, Enter
+runs). Per host:
+
+| Host | Generated path | Invoked as | Dir ownership | Live reload |
+|---|---|---|---|---|
+| Claude Code | `~/.claude/commands/usually/<slug>.md` | `/usually:<slug>` | dedicated (ours) | reopen the `/` menu |
+| OpenCode | `~/.config/opencode/command/usually/<slug>.md` | `/usually:<slug>` | dedicated (ours) | may need a session restart |
+| Codex | `~/.codex/prompts/usually-<slug>.md` | `/prompts:usually-<slug>` | **shared** with the user's own prompts | restart / new chat required |
+
+- `<slug>` keeps only letters (incl. CJK) and digits from the text, capped at 12 chars,
+  falling back to the 8-char id if nothing is keepable; a numeric `-N` suffix is added only
+  on a same-run collision. The full phrase + `(N次)` lives in the file's `description`
+  (which is what the dropdown shows), so even an odd slug stays readable.
+- Each generated file carries the marker `<!-- prompt-pocket:generated -->`. **Only marked
+  files are ever deleted.** Codex's dir is shared, so deletion there is additionally gated
+  by the `usually-` filename prefix — the user's hand-written prompts are never touched.
+- For OpenCode/Codex the body escapes a literal `$` (→ `$$`) so a phrase is never mistaken
+  for a `$NAME`/`$1` placeholder; Claude Code needs no escaping.
+- First-run note: a host's entries appear after the first `/usually` (or `scan`) populates
+  them; on Codex they appear only after you restart Codex.
+- Generation is wrapped per host: a missing host dir is skipped (`skipped:"no-<host>-dir"`)
+  and any write error is reported, never thrown — it can't break the core command.
+
 ## Want to change the threshold?
 Edit the single `const THRESHOLD = 7;` at the top of `scripts/pocket.mjs`; both list and
 scan pick it up.

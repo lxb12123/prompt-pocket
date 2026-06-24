@@ -151,6 +151,26 @@ On hosts without slash commands, just describe the intent in natural language
 A prompt is auto‑recorded once you've typed it **7 or more times** across your sessions.
 Manually added prompts always show, regardless of count.
 
+### Native slash dropdown
+
+Every change regenerates one lightweight command per saved prompt, so your prompts show up
+**directly in the host's native `/` dropdown** — arrow to one and press Enter to run it, no
+round‑trip:
+
+| Host | Type this | You get |
+|---|---|---|
+| Claude Code | `/usually` | `/usually:<片段>` entries, each showing the full prompt + `(N次)` |
+| OpenCode | `/usually` | same `/usually:<片段>` entries |
+| Codex | `/prompts:usually` | `/prompts:usually-<片段>` entries (Codex has no `/usually:` namespace; restart Codex to see new ones) |
+
+The slug is a short readable fragment of the prompt (letters/CJK/digits, ≤12 chars); the
+full phrase is always in the entry's description. Generated files are written to
+`~/.claude/commands/usually/`, `~/.config/opencode/command/usually/`, and
+`~/.codex/prompts/usually-*.md`. Only files carrying the `<!-- prompt-pocket:generated -->`
+marker are ever deleted, and Codex's shared prompts dir is additionally gated by the
+`usually-` prefix — your own prompts are never touched. Run `pocket.mjs sync` to rebuild the
+dropdown manually after editing the store by hand.
+
 ### Under the hood (0‑token core)
 
 All state — the store, frequency counting, and transcript scanning — is handled by a
