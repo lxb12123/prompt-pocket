@@ -64,8 +64,13 @@ Then pick your platform:
 /plugin install prompt-pocket@prompt-pocket-marketplace
 ```
 
-Invoke: type `/usually` (or "list my usual prompts"). Manual global skill: copy
-`.claude/skills/usually/` into `~/.claude/skills/`.
+**First run — do this once after installing:** type **`/prompt-pocket:usually`**.
+A freshly‑installed plugin only exposes the namespaced command `/prompt-pocket:usually`
+(Claude Code *always* prefixes plugin commands — see [Why `/usually` vs
+`/prompt-pocket:usually`](#why-usually-vs-prompt-pocketusually)). That first run scans your
+sessions and **bootstraps a bare, global `/usually`** at `~/.claude/commands/usually.md`.
+From then on, just type **`/usually`** in any project. (Manual alternative: copy
+`.claude/skills/usually/` into `~/.claude/skills/`.)
 
 ### 2. Codex
 
@@ -170,6 +175,40 @@ full phrase is always in the entry's description. Generated files are written to
 marker are ever deleted, and Codex's shared prompts dir is additionally gated by the
 `usually-` prefix — your own prompts are never touched. Run `pocket.mjs sync` to rebuild the
 dropdown manually after editing the store by hand.
+
+### Why `/usually` vs `/prompt-pocket:usually`
+
+This trips people up, so here is exactly what's going on.
+
+**A plugin can never give you a bare `/usually`.** Claude Code *always* namespaces a
+plugin's commands as `/<plugin-name>:<command>`, so the plugin can only ever surface
+`/prompt-pocket:usually`. The prefix is **mandatory by design** (it prevents collisions
+between plugins) — no frontmatter field, no `plugin.json` setting, and no alias can remove
+it ([claude-code#15882](https://github.com/anthropics/claude-code/issues/15882)). On top of
+that, plugin commands currently **don't render their `argument-hint`** grey hint at all,
+even though the field is in the file — a known bug
+([claude-code#46626](https://github.com/anthropics/claude-code/issues/46626)). So
+`/prompt-pocket:usually` is long *and* shows no hint, and neither can be fixed from inside
+the plugin.
+
+**The only way to get a bare, global `/usually` (with a working hint) is a user‑level
+command file** at `~/.claude/commands/usually.md` — a personal/project command, not a
+plugin one, takes a different (non‑buggy) code path and renders the hint. A plugin can't
+write that file at install time… **but the script it ships can, at runtime.** So on the
+first `/prompt-pocket:usually` (or any `scan`/`add`/`edit`/`delete`), `sync` bootstraps
+`~/.claude/commands/usually.md` (and the OpenCode equivalent) for you. After that:
+
+| Command | Source | Scope | Hint | Role |
+|---|---|---|---|---|
+| `/usually` | user‑level file `sync` writes | every project | ✅ shows | **daily entry** — list + manage |
+| `/usually:<片段>` | generated per‑prompt files | every project | n/a | **run a saved prompt instantly** |
+| `/prompt-pocket:usually` | the installed plugin | every project | ❌ (bug) | first‑run bootstrap / fallback |
+
+The bootstrap is **idempotent and marker‑gated**: it creates `usually.md` only if it's
+absent or already carries our `<!-- prompt-pocket:generated -->` marker, so it will **never
+overwrite a `usually.md` you wrote yourself**. (Codex has no bare‑command concept — every
+custom prompt is `/prompts:…` — so there is no bare `/usually` there; use
+`/prompts:usually-<片段>`.)
 
 ### Under the hood (0‑token core)
 

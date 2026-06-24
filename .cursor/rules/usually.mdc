@@ -132,3 +132,9 @@ node ~/.prompt-pocket/pocket.mjs sync
   `<!-- prompt-pocket:generated -->` marker are ever deleted; Codex's shared dir is
   additionally gated by the `usually-` filename prefix, so the user's own prompts are
   never touched.
+- `sync` also bootstraps a bare, global **`/usually` manager command** at
+  `~/.claude/commands/usually.md` (and the OpenCode equivalent) — a user-level command, so
+  it renders its argument-hint (plugin commands can't: prefix is forced + hint is suppressed
+  by claude-code bug #46626). It's marker-gated and never overwrites a user-authored
+  `usually.md`. So on a plugin-only install, the first `/prompt-pocket:usually` run is what
+  creates the nicer global `/usually`.
