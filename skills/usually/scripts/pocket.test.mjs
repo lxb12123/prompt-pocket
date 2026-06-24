@@ -125,6 +125,46 @@ test('sync reflects deletions and is idempotent', () => {
   rmSync(home, { recursive: true, force: true });
 });
 
+// ---- integration: user-level bare /usually manager command ----------------
+
+test('sync creates a bare /usually manager command for Claude + OpenCode (with hint), not Codex', () => {
+  const home = makeHome();
+  mkdirSync(join(home, '.claude'), { recursive: true });
+  mkdirSync(join(home, '.config', 'opencode'), { recursive: true });
+  mkdirSync(join(home, '.codex'), { recursive: true });
+  seedStore(home, [P('some prompt', 8)]);
+  run(home, 'sync');
+
+  const claudeMgr = join(home, '.claude', 'commands', 'usually.md');
+  assert.ok(existsSync(claudeMgr), 'claude manager exists');
+  const body = readFileSync(claudeMgr, 'utf8');
+  assert.match(body, /<!-- prompt-pocket:generated -->/);
+  assert.match(body, /argument-hint:/);
+
+  assert.ok(existsSync(join(home, '.config', 'opencode', 'command', 'usually.md')), 'opencode manager exists');
+  // Codex has no bare command concept — no manager file (only usually-<slug>.md run buttons)
+  assert.ok(!existsSync(join(home, '.codex', 'prompts', 'usually.md')), 'no codex manager');
+  rmSync(home, { recursive: true, force: true });
+});
+
+test('manager never clobbers a user-authored usually.md (no marker), but refreshes a managed one', () => {
+  const home = makeHome();
+  mkdirSync(join(home, '.claude', 'commands'), { recursive: true });
+  const mgr = join(home, '.claude', 'commands', 'usually.md');
+  writeFileSync(mgr, '---\ndescription: my own command\n---\nhand-written, no marker\n');
+  seedStore(home, [P('some prompt', 8)]);
+  run(home, 'sync');
+  assert.match(readFileSync(mgr, 'utf8'), /hand-written, no marker/, 'user file preserved');
+
+  // now make it a managed file → it should be refreshed in place
+  writeFileSync(mgr, `---\ndescription: stale\n---\n${'<!-- prompt-pocket:generated -->'}\nold\n`);
+  run(home, 'sync');
+  const after = readFileSync(mgr, 'utf8');
+  assert.match(after, /argument-hint:/, 'managed file refreshed to current template');
+  assert.ok(!after.includes('stale'), 'old managed content replaced');
+  rmSync(home, { recursive: true, force: true });
+});
+
 // ---- integration: mutation wiring -----------------------------------------
 
 test('add refreshes the dropdown and reports commandsWritten', () => {

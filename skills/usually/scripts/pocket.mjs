@@ -18,7 +18,7 @@
 // Output is always a single JSON object on stdout.
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync, unlinkSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
 import { homedir } from 'node:os';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
@@ -184,16 +184,49 @@ const TARGETS = [
   { host: 'claude',
     guard: join(HOME, '.claude'),
     dir: join(HOME, '.claude', 'commands', 'usually'),
-    name: (slug) => `${slug}.md`, esc: false },
+    name: (slug) => `${slug}.md`, esc: false,
+    managerPath: join(HOME, '.claude', 'commands', 'usually.md') },
   { host: 'opencode',
     guard: join(HOME, '.config', 'opencode'),
     dir: join(HOME, '.config', 'opencode', 'command', 'usually'),
-    name: (slug) => `${slug}.md`, esc: true },
+    name: (slug) => `${slug}.md`, esc: true,
+    managerPath: join(HOME, '.config', 'opencode', 'command', 'usually.md') },
   { host: 'codex',
     guard: join(HOME, '.codex'),
     dir: join(HOME, '.codex', 'prompts'),
     name: (slug) => `usually-${slug}.md`, prefix: 'usually-', esc: true },
+  // Codex has no bare-command concept (everything is /prompts:…), so no manager command.
 ];
+
+// A bare `/usually` manager command (user-level, so it renders argument-hint — unlike
+// plugin commands, which hit the #46626 no-hint bug). Marker-gated: created if absent,
+// refreshed if we own it, never overwriting a user-authored usually.md.
+function managerMarkdown() {
+  const desc = 'Prompt Pocket — list your saved prompts and pick one to run; manage with ' +
+    'add/find/edit/delete. Type /usually: to run a saved prompt directly from the dropdown.';
+  const hint = 'type /usually: to run a saved prompt · or add|find|edit|delete';
+  return `---\ndescription: ${JSON.stringify(desc)}\nargument-hint: ${JSON.stringify(hint)}\n---\n` +
+    `${GEN_MARKER}\nUse the **usually** skill (Prompt Pocket) to handle this request: decide the ` +
+    `sub-action (list+pick / add / find / edit / delete), run ` +
+    `\`node ~/.prompt-pocket/pocket.mjs <command>\`, let the user pick from the list, then run ` +
+    `the picked prompt on their behalf.\n\n` +
+    `The user's input this turn (may be empty = list and pick one to run):\n\n$ARGUMENTS\n`;
+}
+
+function regenManager(t) {
+  if (!t.managerPath) return {};
+  try {
+    if (existsSync(t.managerPath)) {
+      const cur = readFileSync(t.managerPath, 'utf8');
+      if (!cur.includes(GEN_MARKER)) return { manager: 'kept-user-file' };   // never clobber
+    }
+    mkdirSync(dirname(t.managerPath), { recursive: true });
+    writeFileSync(t.managerPath, managerMarkdown());
+    return { manager: t.managerPath };
+  } catch (e) {
+    return { managerError: String((e && e.message) || e) };
+  }
+}
 
 function highPrompts(store) {
   return sortByCount(store.prompts).filter(
@@ -229,7 +262,7 @@ function regenForTarget(t, high) {
       writeFileSync(join(t.dir, t.name(s)), fileMarkdown(p.text, p.count, t.esc));
       written++;
     }
-    return { written, dir: t.dir };
+    return { written, dir: t.dir, ...regenManager(t) };
   } catch (e) {
     return { written: 0, error: String((e && e.message) || e) };
   }
