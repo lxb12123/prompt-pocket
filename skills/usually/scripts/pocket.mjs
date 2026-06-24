@@ -17,14 +17,15 @@
 //   find  <query...>         search prompts by substring
 // Output is always a single JSON object on stdout.
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 
 const THRESHOLD = 7;                       // auto-record once a prompt is repeated this many times
-const HOME = homedir();
+const HOME = process.env.PROMPT_POCKET_HOME || homedir();
 const STORE_DIR = join(HOME, '.prompt-pocket');
 const STORE = join(STORE_DIR, 'store.json');
 const LEGACY_STORE = join(HOME, '.claude', 'prompt-pocket', 'store.json');  // migrate-from
@@ -35,6 +36,13 @@ const out = (o) => process.stdout.write(JSON.stringify(o, null, 2) + '\n');
 const norm = (t) => String(t).replace(/\s+/g, ' ').trim();
 const keyOf = (t) => norm(t).toLowerCase();
 const idOf = (t) => createHash('sha1').update(keyOf(t)).digest('hex').slice(0, 8);
+
+// Readable, filesystem-safe, deterministic slug from a prompt's text.
+// Keeps letters (incl. CJK via \p{L}) and digits; drops everything else; caps at 12.
+function slugOf(text) {
+  const base = norm(text).replace(/[^\p{L}\p{N}]/gu, '').slice(0, 12);
+  return base || idOf(text);
+}
 const sortByCount = (arr) =>
   [...arr].sort((a, b) => (b.count || 0) - (a.count || 0) || a.text.localeCompare(b.text));
 
@@ -166,6 +174,86 @@ function opencodeTexts() {
   return texts;
 }
 
+// ---- generated host command files -----------------------------------------
+const GEN_MARKER = '<!-- prompt-pocket:generated -->';
+
+// One row per host with a native slash dropdown. `owned` dirs are exclusively ours;
+// `prefix` (codex only) gates deletion in a SHARED dir. `esc` escapes `$` for hosts
+// that treat $NAME/$1 as placeholders.
+const TARGETS = [
+  { host: 'claude',
+    guard: join(HOME, '.claude'),
+    dir: join(HOME, '.claude', 'commands', 'usually'),
+    name: (slug) => `${slug}.md`, esc: false },
+  { host: 'opencode',
+    guard: join(HOME, '.config', 'opencode'),
+    dir: join(HOME, '.config', 'opencode', 'command', 'usually'),
+    name: (slug) => `${slug}.md`, esc: true },
+  { host: 'codex',
+    guard: join(HOME, '.codex'),
+    dir: join(HOME, '.codex', 'prompts'),
+    name: (slug) => `usually-${slug}.md`, prefix: 'usually-', esc: true },
+];
+
+function highPrompts(store) {
+  return sortByCount(store.prompts).filter(
+    (p) => (p.count || 0) >= THRESHOLD || p.source === 'manual');
+}
+
+function fileMarkdown(text, count, esc) {
+  const desc = `${norm(text)}  (${count || 0}次)`;
+  const body = esc ? text.replace(/\$/g, '$$$$') : text;   // $$$$ -> literal $$ in output
+  return `---\ndescription: ${JSON.stringify(desc)}\n---\n${GEN_MARKER}\n` +
+    `Run this saved Prompt Pocket prompt exactly as if the user just typed it — execute ` +
+    `it now; do not echo it back or ask whether to proceed:\n\n${body}\n`;
+}
+
+function regenForTarget(t, high) {
+  if (!existsSync(t.guard)) return { skipped: `no-${t.host}-dir` };
+  try {
+    mkdirSync(t.dir, { recursive: true });
+    for (const f of readdirSync(t.dir)) {                  // delete only OUR previous files
+      if (!f.endsWith('.md')) continue;
+      if (t.prefix && !f.startsWith(t.prefix)) continue;   // shared dir: stay in our lane
+      const full = join(t.dir, f);
+      let content = '';
+      try { content = readFileSync(full, 'utf8'); } catch { continue; }
+      if (content.includes(GEN_MARKER)) { try { unlinkSync(full); } catch {} }
+    }
+    const used = new Set();
+    let written = 0;
+    for (const p of high) {
+      let slug = slugOf(p.text), s = slug, n = 2;
+      while (used.has(s)) s = `${slug}-${n++}`;
+      used.add(s);
+      writeFileSync(join(t.dir, t.name(s)), fileMarkdown(p.text, p.count, t.esc));
+      written++;
+    }
+    return { written, dir: t.dir };
+  } catch (e) {
+    return { written: 0, error: String((e && e.message) || e) };
+  }
+}
+
+function regenCommands(store) {
+  const high = highPrompts(store);
+  const byHost = {};
+  for (const t of TARGETS) byHost[t.host] = regenForTarget(t, high);
+  return byHost;
+}
+
+function safeRegen(store) {
+  try { return regenCommands(store); } catch (e) { return { error: String(e) }; }
+}
+
+// Build the extra output fields every mutating command appends.
+function regenFields(store) {
+  const byHost = safeRegen(store);
+  const commandsWritten = Object.values(byHost)
+    .reduce((n, r) => n + (r && typeof r.written === 'number' ? r.written : 0), 0);
+  return { byHost, commandsWritten };
+}
+
 // ---- commands -------------------------------------------------------------
 
 function cmdScan() {
@@ -201,6 +289,7 @@ function cmdScan() {
     scanned: texts.length,
     bySource: { claude: bySource.claude.length, codex: bySource.codex.length, opencode: bySource.opencode.length },
     addedCount: added.length, updatedCount: updated.length, added, updated,
+    ...regenFields(store),
   });
 }
 
@@ -225,7 +314,7 @@ function cmdAdd(text) {
     store.prompts.push(p);
   }
   saveStore(store);
-  out({ ok: true, action: 'add', prompt: p });
+  out({ ok: true, action: 'add', prompt: p, ...regenFields(store) });
 }
 
 function cmdDelete(idOrText) {
@@ -236,7 +325,7 @@ function cmdDelete(idOrText) {
   if (!p) return out({ ok: false, error: 'not found', query: q });
   store.prompts = store.prompts.filter((x) => x.id !== p.id);
   saveStore(store);
-  out({ ok: true, action: 'delete', removed: p });
+  out({ ok: true, action: 'delete', removed: p, ...regenFields(store) });
 }
 
 function cmdEdit(id, newText) {
@@ -252,7 +341,7 @@ function cmdEdit(id, newText) {
   p.id = idOf(nt);
   p.updatedAt = nowISO();
   saveStore(store);
-  out({ ok: true, action: 'edit', before, after: p });
+  out({ ok: true, action: 'edit', before, after: p, ...regenFields(store) });
 }
 
 function cmdFind(query) {
@@ -265,14 +354,23 @@ function cmdFind(query) {
 
 // ---- dispatch -------------------------------------------------------------
 
-const [, , cmd, ...rest] = process.argv;
-switch (cmd) {
-  case 'list': cmdList(); break;
-  case 'scan': cmdScan(); break;
-  case 'add': cmdAdd(rest.join(' ')); break;
-  case 'delete': cmdDelete(rest.join(' ')); break;
-  case 'edit': cmdEdit(rest[0], rest.slice(1).join(' ')); break;
-  case 'find': cmdFind(rest.join(' ')); break;
-  default:
-    out({ ok: false, error: 'usage', commands: ['list', 'scan', 'add <text>', 'delete <id|text>', 'edit <id> <newtext>', 'find <query>'] });
+function main() {
+  const [, , cmd, ...rest] = process.argv;
+  switch (cmd) {
+    case 'list': cmdList(); break;
+    case 'scan': cmdScan(); break;
+    case 'add': cmdAdd(rest.join(' ')); break;
+    case 'delete': cmdDelete(rest.join(' ')); break;
+    case 'edit': cmdEdit(rest[0], rest.slice(1).join(' ')); break;
+    case 'find': cmdFind(rest.join(' ')); break;
+    case 'sync': { const store = loadStore(); out({ ok: true, action: 'sync', byHost: safeRegen(store) }); break; }
+    default:
+      out({ ok: false, error: 'usage', commands: ['list', 'scan', 'add <text>', 'delete <id|text>', 'edit <id> <newtext>', 'find <query>', 'sync'] });
+  }
+}
+
+export { slugOf, regenCommands };
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
 }
