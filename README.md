@@ -1,11 +1,36 @@
+<div align="center">
+
+<img src="assets/prompt-pocket-mascot.png" alt="Prompt Pocket mascot — a kangaroo with your prompts tucked in its pouch" width="440">
+
 # Prompt Pocket
 
-**Remember your most-used prompts, and pick one to run instantly — across every agent.**
+**Stop re‑typing the same prompt. Tuck it in your pocket and run it with one tap — across every agent.**
 
-You repeat the same prompts all the time ("pull the remote main and rebuild on the
-simulators", "run the fixed build flow, don't touch the code", …). Prompt Pocket keeps
-them in one place, automatically notices the ones you type again and again, and lets you
-pick one from a menu to run it on the spot — no copy‑paste.
+</div>
+
+### The pain
+
+In real development there's always **that one prompt you keep needing** — the same
+instruction, over and over. Then you open a **new session** and the agent has forgotten
+everything, so you need it *again*. And every time, your only option is to **hand‑type the
+whole thing**. It's a small annoyance that you pay a hundred times a day.
+
+There's no "recent prompts," no history that survives a fresh session, no way to carry it
+from one tool to the next. Just you, re‑typing.
+
+### The fix
+
+This is exactly what Prompt Pocket is for — **a kangaroo's pouch for your prompts**:
+
+- **Save a prompt once.** `add` any line you keep needing (or let it auto‑record the ones
+  you've already repeated 7+ times) — it's now in your pocket for good.
+- **Run it fast.** Every saved prompt drops **straight into your agent's native `/`
+  dropdown** — arrow to it, press Enter, it runs. No copy‑paste, no re‑typing.
+- **In every session, in every tool.** One shared pocket at `~/.prompt-pocket/store.json`
+  that **every agent reads** — save a prompt in Codex, fire it in Claude Code. A new session
+  never forgets it.
+
+Type `/usually` and your usual prompts are right there.
 
 > Forged by [Agent Path Forge](https://github.com/lxb12123/agent-path-forge) — one source, compiled into a plugin every host can install.
 
