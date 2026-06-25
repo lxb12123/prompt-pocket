@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1280px; height: 640px; }
+  body {
+    font-family: -apple-system, "SF Pro Display", "Helvetica Neue", "PingFang SC", Arial, sans-serif;
+    background: linear-gradient(135deg, #FDF5EC 0%, #FBE7D3 55%, #F7DCC4 100%);
+    overflow: hidden;
+    position: relative;
+  }
+  .blob { position: absolute; border-radius: 50%; }
+  .b1 { width: 520px; height: 520px; left: -120px; top: -160px; background: #F6E0CA; opacity: .55; }
+  .b2 { width: 280px; height: 280px; right: -70px; bottom: -90px; background: #F2D2B0; opacity: .5; }
+  .dot { position: absolute; border-radius: 50%; background: #E8A77E; opacity: .65; }
+
+  .wrap { position: absolute; inset: 0; display: flex; align-items: center; padding: 0 70px; }
+  .art { width: 470px; flex: 0 0 470px; display: flex; align-items: center; justify-content: center; }
+  .art svg { width: 470px; height: auto; filter: drop-shadow(0 16px 26px rgba(193,95,60,.20)); }
+
+  .copy { flex: 1; padding-left: 26px; }
+  .kicker { display: flex; gap: 9px; margin-bottom: 20px; flex-wrap: wrap; max-width: 600px; }
+  .chip {
+    font-size: 17px; font-weight: 600; color: #B05B36;
+    background: #FBEADB; border: 1px solid #EFCDAE;
+    padding: 5px 13px; border-radius: 999px;
+  }
+  .chip.more { color: #C08A6A; background: transparent; border-style: dashed; }
+  h1 {
+    font-size: 88px; line-height: .98; font-weight: 800;
+    color: #3A2418; letter-spacing: -2px; margin-bottom: 20px;
+  }
+  .tag { font-size: 35px; font-weight: 800; color: #D2744A; line-height: 1.18; margin-bottom: 16px; }
+  .sub { font-size: 26px; font-weight: 500; color: #6E5544; line-height: 1.4; max-width: 600px; }
+  .sub code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: #fff; color: #D2744A; font-weight: 700;
+    padding: 2px 10px; border-radius: 8px; border: 1px solid #EBCBAE;
+    font-size: 24px;
+  }
+  .foot { position: absolute; right: 70px; bottom: 40px; font-size: 20px; font-weight: 600; color: #B98A6B; }
+</style>
+</head>
+<body>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="dot" style="width:14px;height:14px;left:520px;top:70px"></div>
+  <div class="dot" style="width:10px;height:10px;right:120px;top:120px"></div>
+  <div class="dot" style="width:12px;height:12px;left:70px;bottom:90px"></div>
+
+  <div class="wrap">
+    <div class="art">
+      <svg viewBox="180 6 400 392" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#E08A5E"/><stop offset="1" stop-color="#D2744A"/>
+          </linearGradient>
+          <linearGradient id="belly" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F7DBBE"/><stop offset="1" stop-color="#F0CBA3"/>
+          </linearGradient>
+        </defs>
+        <g>
+          <path d="M348 318 C 430 360, 520 352, 560 300 C 530 322, 470 318, 430 296 C 402 280, 372 286, 348 300 Z" fill="#C96A41"/>
+          <ellipse cx="262" cy="360" rx="46" ry="20" fill="#C96A41"/>
+          <ellipse cx="356" cy="362" rx="50" ry="20" fill="#D2744A"/>
+          <path d="M300 150 C 372 150, 408 210, 408 280 C 408 340, 364 372, 300 372 C 236 372, 196 340, 196 280 C 196 210, 228 150, 300 150 Z" fill="url(#body)"/>
+          <path d="M300 214 C 348 214, 372 250, 372 292 C 372 332, 344 354, 300 354 C 256 354, 230 332, 230 292 C 230 250, 252 214, 300 214 Z" fill="url(#belly)"/>
+          <path d="M214 250 C 196 264, 196 292, 214 300 C 224 286, 226 266, 224 252 Z" fill="#C96A41"/>
+          <path d="M386 250 C 404 264, 404 292, 386 300 C 376 286, 374 266, 376 252 Z" fill="#C96A41"/>
+          <path d="M236 300 C 236 290, 250 286, 300 286 C 350 286, 364 290, 364 300 L 360 348 C 360 354, 340 358, 300 358 C 260 358, 240 354, 240 348 Z" fill="#E8B98C"/>
+          <path d="M236 300 C 236 290, 250 286, 300 286 C 350 286, 364 290, 364 300" stroke="#D9A878" stroke-width="3" fill="none"/>
+          <g transform="rotate(-9 264 286)">
+            <rect x="240" y="252" width="58" height="56" rx="8" fill="#FFFBF5" stroke="#E0B48E" stroke-width="2"/>
+            <text x="248" y="270" font-family="ui-monospace, Menlo, monospace" font-size="13" fill="#D2744A" font-weight="700">/</text>
+            <rect x="256" y="262" width="32" height="5" rx="2.5" fill="#E8C7A6"/>
+            <rect x="248" y="276" width="42" height="5" rx="2.5" fill="#EAD3B8"/>
+            <rect x="248" y="287" width="34" height="5" rx="2.5" fill="#EAD3B8"/>
+          </g>
+          <g transform="rotate(8 336 286)">
+            <rect x="306" y="252" width="58" height="56" rx="8" fill="#FFFBF5" stroke="#E0B48E" stroke-width="2"/>
+            <text x="314" y="270" font-family="ui-monospace, Menlo, monospace" font-size="13" fill="#D2744A" font-weight="700">/</text>
+            <rect x="322" y="262" width="32" height="5" rx="2.5" fill="#E8C7A6"/>
+            <rect x="314" y="276" width="42" height="5" rx="2.5" fill="#EAD3B8"/>
+            <rect x="314" y="287" width="28" height="5" rx="2.5" fill="#EAD3B8"/>
+          </g>
+          <g>
+            <rect x="262" y="244" width="76" height="58" rx="8" fill="#FFFFFF" stroke="#D2744A" stroke-width="2.5"/>
+            <text x="270" y="263" font-family="ui-monospace, Menlo, monospace" font-size="13" fill="#D2744A" font-weight="800">/usually</text>
+            <rect x="270" y="273" width="50" height="6" rx="3" fill="#F0C9A4"/>
+            <rect x="270" y="285" width="40" height="6" rx="3" fill="#F4D9BE"/>
+          </g>
+          <path d="M256 96 C 248 56, 256 30, 274 26 C 286 52, 284 86, 276 110 Z" fill="#D2744A"/>
+          <path d="M250 92 C 248 64, 256 44, 268 42 C 274 62, 272 82, 268 100 Z" fill="#F0CBA3"/>
+          <path d="M344 96 C 352 56, 344 30, 326 26 C 314 52, 316 86, 324 110 Z" fill="#D2744A"/>
+          <path d="M350 92 C 352 64, 344 44, 332 42 C 326 62, 328 82, 332 100 Z" fill="#F0CBA3"/>
+          <ellipse cx="300" cy="150" rx="74" ry="66" fill="url(#body)"/>
+          <ellipse cx="300" cy="170" rx="40" ry="32" fill="#F2D2AE"/>
+          <circle cx="276" cy="142" r="11" fill="#3A2418"/>
+          <circle cx="324" cy="142" r="11" fill="#3A2418"/>
+          <circle cx="280" cy="138" r="3.5" fill="#FFF7EE"/>
+          <circle cx="328" cy="138" r="3.5" fill="#FFF7EE"/>
+          <ellipse cx="258" cy="166" rx="11" ry="7" fill="#EE9E73" opacity="0.55"/>
+          <ellipse cx="342" cy="166" rx="11" ry="7" fill="#EE9E73" opacity="0.55"/>
+          <ellipse cx="300" cy="162" rx="8" ry="6" fill="#7A4A2E"/>
+          <path d="M286 176 C 294 186, 306 186, 314 176" stroke="#7A4A2E" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="copy">
+      <div class="kicker">
+        <span class="chip">Claude Code</span>
+        <span class="chip">Codex</span>
+        <span class="chip">OpenCode</span>
+        <span class="chip">Cursor</span>
+        <span class="chip">Copilot</span>
+        <span class="chip">Gemini</span>
+        <span class="chip more">+ any AGENTS.md agent</span>
+      </div>
+      <h1>Prompt&nbsp;Pocket</h1>
+      <div class="tag">Stop re&#8209;typing the same prompt.</div>
+      <div class="sub">Save it once, then run it from the <code>/</code> dropdown — in every session, across every agent.</div>
+    </div>
+  </div>
+  <div class="foot">github.com/lxb12123/prompt-pocket</div>
+</body>
+</html>
