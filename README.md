@@ -187,7 +187,7 @@ The `/` dropdown shows **command names only** — it does **not** preview your p
 so typing `/usually` + a space shows nothing extra. To actually see them:
 
 1. **Browse & run** — type **`/usually:`** (with the colon). The dropdown fills with one
-   entry per saved prompt (`/usually:<片段>`); arrow to one and press Enter to run it.
+   entry per saved prompt (`/usually:<slug>`); arrow to one and press Enter to run it.
 2. **List & manage** — run **`/usually`** (just press Enter, no args). It lists your prompts
    so you can pick one to run.
 
@@ -222,9 +222,9 @@ round‑trip:
 
 | Host | Type this | You get |
 |---|---|---|
-| Claude Code | `/usually` | `/usually:<片段>` entries, each showing the full prompt + `(N×)` |
-| OpenCode | `/usually` | same `/usually:<片段>` entries |
-| Codex | `/prompts:usually` | `/prompts:usually-<片段>` entries (Codex has no `/usually:` namespace; restart Codex to see new ones) |
+| Claude Code | `/usually` | `/usually:<slug>` entries, each showing the full prompt + `(N×)` |
+| OpenCode | `/usually` | same `/usually:<slug>` entries |
+| Codex | `/prompts:usually` | `/prompts:usually-<slug>` entries (Codex has no `/usually:` namespace; restart Codex to see new ones) |
 
 The slug is a short readable fragment of the prompt (letters/CJK/digits, ≤12 chars); the
 full phrase is always in the entry's description. Generated files are written to
@@ -259,14 +259,14 @@ first `/prompt-pocket:usually` (or any `scan`/`add`/`edit`/`delete`), `sync` boo
 | Command | Source | Scope | Hint | Role |
 |---|---|---|---|---|
 | `/usually` | user‑level file `sync` writes | every project | ✅ shows | **daily entry** — list + manage |
-| `/usually:<片段>` | generated per‑prompt files | every project | n/a | **run a saved prompt instantly** |
+| `/usually:<slug>` | generated per‑prompt files | every project | n/a | **run a saved prompt instantly** |
 | `/prompt-pocket:usually` | the installed plugin | every project | ❌ (bug) | first‑run bootstrap / fallback |
 
 The bootstrap is **idempotent and marker‑gated**: it creates `usually.md` only if it's
 absent or already carries our `<!-- prompt-pocket:generated -->` marker, so it will **never
 overwrite a `usually.md` you wrote yourself**. (Codex has no bare‑command concept — every
 custom prompt is `/prompts:…` — so there is no bare `/usually` there; use
-`/prompts:usually-<片段>`.)
+`/prompts:usually-<slug>`.)
 
 ### Under the hood (0‑token core)
 
