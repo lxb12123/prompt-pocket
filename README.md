@@ -169,17 +169,50 @@ manual `add/find/edit/delete` work everywhere; **auto‑scan** is the only host�
 
 | Command | What it does |
 |---|---|
-| `/usually` | Scan recent sessions, then show your high‑frequency prompts. Pick one (arrow keys in Claude Code, a number in Codex) and it runs immediately. |
+| `/usually` | Scan recent sessions, then **list** your high‑frequency prompts (each with its `id`). Pick one and it runs immediately. |
 | `/usually add <text>` | Manually save a prompt to the pocket. |
 | `/usually find <keyword>` | Search the pocket. |
-| `/usually edit <id> <new text>` | Change a saved prompt. |
-| `/usually delete <id\|text>` | Remove a prompt. |
+| `/usually edit <id> <new text>` | Change a saved prompt. Needs the prompt's **`id`** — see below. |
+| `/usually delete <id\|text>` | Remove a prompt by `id` or exact text. |
 
 On hosts without slash commands, just describe the intent in natural language
 ("list my usual prompts", "save this prompt", …) — the skill maps it to the right action.
 
 A prompt is auto‑recorded once you've typed it **7 or more times** across your sessions.
 Manually added prompts always show, regardless of count.
+
+### Two ways to see your saved prompts
+
+The `/` dropdown shows **command names only** — it does **not** preview your prompts inline,
+so typing `/usually` + a space shows nothing extra. To actually see them:
+
+1. **Browse & run** — type **`/usually:`** (with the colon). The dropdown fills with one
+   entry per saved prompt (`/usually:<片段>`); arrow to one and press Enter to run it.
+2. **List & manage** — run **`/usually`** (just press Enter, no args). It prints the full
+   list **with each prompt's `id`** — the id you need for `edit` / `delete`.
+
+### Finding a prompt's `id` (for `edit` / `delete`)
+
+Every saved prompt has a short 8‑char `id`. It is **never shown in the `/` dropdown** — only
+in the `list` output. Get it with `/usually` (Enter) or directly:
+
+```bash
+node ~/.prompt-pocket/pocket.mjs list
+# id        count  prompt
+# a1b2c3d4   16    Pull the remote main branch and rebuild…
+# e5f6a7b8   13    Run the fixed build pipeline…
+```
+
+Then edit/delete by that id (a unique **id‑prefix** also works, e.g. `a6e9`):
+
+```text
+/usually edit a1b2c3d4 pull main and rebuild
+/usually delete a1b2c3d4
+```
+
+`edit` matches by **full id**, **id‑prefix (if unique)**, or **exact original text** — a
+partial keyword will *not* match, which is why you normally pass the id. (`delete` also
+accepts the exact text.)
 
 ### Native slash dropdown
 

@@ -206,10 +206,18 @@ function managerMarkdown() {
     'add/find/edit/delete. Type /usually: to run a saved prompt directly from the dropdown.';
   const hint = 'type /usually: to run a saved prompt · or add|find|edit|delete';
   return `---\ndescription: ${JSON.stringify(desc)}\nargument-hint: ${JSON.stringify(hint)}\n---\n` +
-    `${GEN_MARKER}\nUse the **usually** skill (Prompt Pocket) to handle this request: decide the ` +
-    `sub-action (list+pick / add / find / edit / delete), run ` +
-    `\`node ~/.prompt-pocket/pocket.mjs <command>\`, let the user pick from the list, then run ` +
-    `the picked prompt on their behalf.\n\n` +
+    `${GEN_MARKER}\nUse the **usually** skill (Prompt Pocket) to handle this request by running ` +
+    `\`node ~/.prompt-pocket/pocket.mjs <command>\`. Map the user's input to a sub-action:\n` +
+    `- empty / "list" / "列出" -> \`list\`, then let them pick one and run it on their behalf.\n` +
+    `- "add"/"save"/"存"/"记一下" -> \`add <text>\`.\n` +
+    `- "find"/"search"/"搜"/"找" -> \`find <keyword>\`.\n` +
+    `- "edit"/"update"/"change"/"改"/"修改" -> \`edit <id> <new text>\`.\n` +
+    `- "delete"/"remove"/"rm"/"删"/"删除" -> \`delete <id|text>\`.\n` +
+    `When you show the list (for picking, editing, or deleting), **display each prompt with its ` +
+    `short 8-char \`id\` and \`(N次)\` count** so the user can copy an id for edit/delete. ` +
+    `\`edit\`/\`delete\` need an id (a unique id-prefix or exact text also works); if the user ` +
+    `asked to edit/delete without one, run \`list\` first and ask which id. If the input matches ` +
+    `no sub-action, don't go silent — show the supported commands.\n\n` +
     `The user's input this turn (may be empty = list and pick one to run):\n\n$ARGUMENTS\n`;
 }
 
