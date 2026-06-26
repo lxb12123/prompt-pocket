@@ -189,15 +189,12 @@ so typing `/usually` + a space shows nothing extra. To actually see them:
 1. **Browse & run** — type **`/usually:`** (with the colon). The dropdown fills with one
    entry per saved prompt (`/usually:<片段>`); arrow to one and press Enter to run it.
 2. **List & manage** — run **`/usually`** (just press Enter, no args). It lists your prompts
-   so you can pick one to run, and *usually* shows each `id` too — but that view is rendered
-   by the agent, so the id isn't guaranteed to appear. When you specifically need the `id`,
-   use the script command below — it always prints it.
+   so you can pick one to run.
 
 ### Finding a prompt's `id` (for `edit` / `delete`)
 
-Every saved prompt has a short 8‑char `id`. It is **never shown in the `/` dropdown**, and
-the `/usually` list view (agent‑rendered) may or may not include it. The **reliable** source
-is the script's own `list` output, which always carries the id:
+Every saved prompt has a short 8‑char `id`, used by `edit` / `delete`. Get it from the
+script's `list` output, which always prints it:
 
 ```bash
 node ~/.prompt-pocket/pocket.mjs list
