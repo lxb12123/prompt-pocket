@@ -13,7 +13,7 @@ etc. all read and write the same pocket. On first run, if a legacy store is foun
     {
       "id": "a1b2c3d4",          // sha1 of the normalized text, first 8 chars; text changes -> id changes
       "text": "the prompt text",
-      "count": 16,               // occurrences (real cumulative frequency across all agents)
+      "count": 12,               // occurrences (real cumulative frequency across all agents)
       "source": "auto",          // auto = recorded by scan / manual = added by the user
       "createdAt": "ISO time",
       "updatedAt": "ISO time"

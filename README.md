@@ -199,14 +199,14 @@ script's `list` output, which always prints it:
 ```bash
 node ~/.prompt-pocket/pocket.mjs list
 # id        count  prompt
-# a1b2c3d4   16    Pull the remote main branch and rebuild…
-# e5f6a7b8   13    Run the fixed build pipeline…
+# a1b2c3d4   16    Pull the latest main branch and rebuild the project…
+# e5f6a7b8   13    Run the build pipeline and deploy to staging…
 ```
 
-Then edit/delete by that id (a unique **id‑prefix** also works, e.g. `a6e9`):
+Then edit/delete by that id (a unique **id‑prefix** also works, e.g. `a1b2`):
 
 ```text
-/usually edit a1b2c3d4 pull main and rebuild
+/usually edit a1b2c3d4 Pull main and rebuild from scratch
 /usually delete a1b2c3d4
 ```
 

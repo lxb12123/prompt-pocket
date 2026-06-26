@@ -54,7 +54,7 @@ test('slugOf keeps CJK and caps at 12 chars', () => {
   const s = slugOf('把这段中文文字翻译成英文并润色一下');
   assert.ok(s.length <= 12, `len ${s.length}`);
   assert.match(s, /^[\p{L}\p{N}]+$/u);
-  assert.ok(s.startsWith('拉取线上'));
+  assert.ok(s.startsWith('把这段中'));
 });
 
 test('slugOf falls back to 8-hex id when nothing keepable', () => {
@@ -180,7 +180,7 @@ const P = (text, count, source = 'auto') =>
 test('sync writes one Claude command file per high prompt with marker', () => {
   const home = makeHome();
   mkdirSync(join(home, '.claude'), { recursive: true });            // Claude installed
-  seedStore(home, [P('把这段中文文字翻译成英文并润色一下', 16),
+  seedStore(home, [P('把这段中文文字翻译成英文并润色一下', 12),
                    P('rare one', 2)]);                              // below threshold
   const res = run(home, 'sync');
   assert.equal(res.ok, true);

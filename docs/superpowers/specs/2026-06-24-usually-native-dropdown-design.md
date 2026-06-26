@@ -45,14 +45,14 @@ prompt into each installed host's command directory. After sync:
 
 - **Claude Code / OpenCode** — typing `/usually` shows, natively:
   ```
-  /usually:pullmainandr   把这段中文文字翻译成英文并润色一下   (16次)
-  /usually:rebuild      pull main and rebuild the project    (13次)
+  /usually:pullmainandr        pull main and rebuild the project          (12次)
+  /usually:把这段中文文字翻译成英文   把这段中文文字翻译成英文并润色一下          (8次)
   ...
   ```
 - **Codex** — typing `/prompts:usually` shows `/prompts:usually-pullmainandr`, etc.
 
-⬆️/⬇️ cycles, Enter runs that exact phrase. The slug is a short, readable Chinese
-fragment of the phrase (never a bare number); the full phrase + `(N次)` is always in the
+⬆️/⬇️ cycles, Enter runs that exact phrase. The slug is a short, readable
+fragment of the phrase — Latin or CJK, never a bare number; the full phrase + `(N次)` is always in the
 `description`, so even if a slug renders oddly the phrase is visible.
 
 ## Components
