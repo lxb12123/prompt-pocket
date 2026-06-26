@@ -214,7 +214,7 @@ function managerMarkdown() {
     `- "edit"/"update"/"change"/"改"/"修改" -> \`edit <id> <new text>\`.\n` +
     `- "delete"/"remove"/"rm"/"删"/"删除" -> \`delete <id|text>\`.\n` +
     `When you show the list (for picking, editing, or deleting), **display each prompt with its ` +
-    `short 8-char \`id\` and \`(N次)\` count** so the user can copy an id for edit/delete. ` +
+    `short 8-char \`id\` and \`(N×)\` count** so the user can copy an id for edit/delete. ` +
     `\`edit\`/\`delete\` need an id (a unique id-prefix or exact text also works); if the user ` +
     `asked to edit/delete without one, run \`list\` first and ask which id. If the input matches ` +
     `no sub-action, don't go silent — show the supported commands.\n\n` +
@@ -242,7 +242,7 @@ function highPrompts(store) {
 }
 
 function fileMarkdown(text, count, esc) {
-  const desc = `${norm(text)}  (${count || 0}次)`;
+  const desc = `${norm(text)}  (${count || 0}×)`;
   const body = esc ? text.replace(/\$/g, '$$$$') : text;   // $$$$ -> literal $$ in output
   return `---\ndescription: ${JSON.stringify(desc)}\n---\n${GEN_MARKER}\n` +
     `Run this saved Prompt Pocket prompt exactly as if the user just typed it — execute ` +

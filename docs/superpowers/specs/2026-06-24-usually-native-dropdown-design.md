@@ -45,14 +45,14 @@ prompt into each installed host's command directory. After sync:
 
 - **Claude Code / OpenCode** — typing `/usually` shows, natively:
   ```
-  /usually:pullmainandr        pull main and rebuild the project          (12次)
-  /usually:把这段中文文字翻译成英文   把这段中文文字翻译成英文并润色一下          (8次)
+  /usually:pullmainandr        pull main and rebuild the project          (12×)
+  /usually:把这段中文文字翻译成英文   把这段中文文字翻译成英文并润色一下          (8×)
   ...
   ```
 - **Codex** — typing `/prompts:usually` shows `/prompts:usually-pullmainandr`, etc.
 
 ⬆️/⬇️ cycles, Enter runs that exact phrase. The slug is a short, readable
-fragment of the phrase — Latin or CJK, never a bare number; the full phrase + `(N次)` is always in the
+fragment of the phrase — Latin or CJK, never a bare number; the full phrase + `(N×)` is always in the
 `description`, so even if a slug renders oddly the phrase is visible.
 
 ## Components
@@ -81,7 +81,7 @@ For each target whose guard dir exists:
 - **Per-prompt file** (`description` is what the dropdown shows beside the name):
   ```
   ---
-  description: <full phrase>  (<count>次)
+  description: <full phrase>  (<count>×)
   ---
   <!-- prompt-pocket:generated -->
   Run this saved Prompt Pocket prompt exactly as if the user just typed it — execute it

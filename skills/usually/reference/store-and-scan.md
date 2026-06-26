@@ -69,7 +69,7 @@ runs). Per host:
 
 - `<slug>` keeps only letters (incl. CJK) and digits from the text, capped at 12 chars,
   falling back to the 8-char id if nothing is keepable; a numeric `-N` suffix is added only
-  on a same-run collision. The full phrase + `(N次)` lives in the file's `description`
+  on a same-run collision. The full phrase + `(N×)` lives in the file's `description`
   (which is what the dropdown shows), so even an odd slug stays readable.
 - Each generated file carries the marker `<!-- prompt-pocket:generated -->`. **Only marked
   files are ever deleted.** Codex's dir is shared, so deletion there is additionally gated

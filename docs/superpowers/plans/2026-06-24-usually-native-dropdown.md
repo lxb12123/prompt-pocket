@@ -233,7 +233,7 @@ function highPrompts(store) {
 }
 
 function fileMarkdown(text, count, esc) {
-  const desc = `${norm(text)}  (${count || 0}次)`;
+  const desc = `${norm(text)}  (${count || 0}×)`;
   const body = esc ? text.replace(/\$/g, '$$$$') : text;   // $$$$ -> literal $$ in output
   return `---\ndescription: ${JSON.stringify(desc)}\n---\n${GEN_MARKER}\n` +
     `Run this saved Prompt Pocket prompt exactly as if the user just typed it — execute ` +
@@ -592,7 +592,7 @@ argument-hint: "type /usually: to run a saved prompt · or add|find|edit|delete"
 
 - [ ] **Step 5: Update `skills/usually/reference/store-and-scan.md` and `README.md`**
 
-Add a "Native dropdown" subsection to both describing: the three target dirs and invocation forms (`/usually:<slug>`, `/prompts:usually-<slug>`), the readable-Chinese slug + `(N次)` in the description, the marker/prefix deletion safety, the `$`-escape for OpenCode/Codex, and the first-run note (a host's entries appear after the first `/usually`/scan populates them; Codex needs a restart).
+Add a "Native dropdown" subsection to both describing: the three target dirs and invocation forms (`/usually:<slug>`, `/prompts:usually-<slug>`), the readable-Chinese slug + `(N×)` in the description, the marker/prefix deletion safety, the `$`-escape for OpenCode/Codex, and the first-run note (a host's entries appear after the first `/usually`/scan populates them; Codex needs a restart).
 
 - [ ] **Step 6: Verify consistency and commit**
 

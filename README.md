@@ -222,7 +222,7 @@ round‑trip:
 
 | Host | Type this | You get |
 |---|---|---|
-| Claude Code | `/usually` | `/usually:<片段>` entries, each showing the full prompt + `(N次)` |
+| Claude Code | `/usually` | `/usually:<片段>` entries, each showing the full prompt + `(N×)` |
 | OpenCode | `/usually` | same `/usually:<片段>` entries |
 | Codex | `/prompts:usually` | `/prompts:usually-<片段>` entries (Codex has no `/usually:` namespace; restart Codex to see new ones) |
 
