@@ -102,8 +102,6 @@
   .card p{color:var(--muted);font-size:15.5px;line-height:1.5}
 
   /* quick start */
-  .qs-setup{background:var(--surface-soft);border:1px solid var(--chip-border);border-radius:14px;padding:16px 18px;margin-bottom:26px}
-  .qs-setup .note{font-size:14px;color:var(--muted);font-weight:600;margin-bottom:10px}
   .codeline{display:flex;align-items:flex-start;gap:12px;min-width:0}
   pre{font-family:var(--mono);font-size:13.5px;line-height:1.7;color:var(--text);white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;flex:1;min-width:0}
   .copy{font:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--accent);background:#fff;border:1px solid var(--chip-border);border-radius:8px;padding:5px 11px;white-space:nowrap;transition:background .15s}
@@ -279,24 +277,24 @@
                 cmd_en:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n\n# first run once, then just use /usually:\n/prompt-pocket:usually",
                 img:"img/demo-claude.png" },
     codex:    { label:"Codex",
-                cmd_zh:"cp -r .agents/skills/usually ~/.codex/skills/usually\n\n# 然后直接说：\nlist my usual prompts",
-                cmd_en:"cp -r .agents/skills/usually ~/.codex/skills/usually\n\n# then just say:\nlist my usual prompts",
+                cmd_zh:"git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket\nmkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs\n\ncp -r .agents/skills/usually ~/.codex/skills/usually\n\n# 然后直接说：\nlist my usual prompts",
+                cmd_en:"git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket\nmkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs\n\ncp -r .agents/skills/usually ~/.codex/skills/usually\n\n# then just say:\nlist my usual prompts",
                 img:"img/demo-codex.png" },
     opencode: { label:"OpenCode",
-                cmd_zh:"cp -r .opencode/skills/usually ~/.config/opencode/skills/usually\n\n# 然后输入：\n/usually",
-                cmd_en:"cp -r .opencode/skills/usually ~/.config/opencode/skills/usually\n\n# then type:\n/usually",
+                cmd_zh:"git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket\nmkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs\n\ncp -r .opencode/skills/usually ~/.config/opencode/skills/usually\n\n# 然后输入：\n/usually",
+                cmd_en:"git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket\nmkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs\n\ncp -r .opencode/skills/usually ~/.config/opencode/skills/usually\n\n# then type:\n/usually",
                 img:"img/demo-opencode.png" },
     cursor:   { label:"Cursor",
-                cmd_zh:"cp -r .agents/skills/usually ~/.cursor/skills/usually\n\n# 然后问一句：\nlist my usual prompts",
-                cmd_en:"cp -r .agents/skills/usually ~/.cursor/skills/usually\n\n# then ask:\nlist my usual prompts",
+                cmd_zh:"git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket\nmkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs\n\ncp -r .agents/skills/usually ~/.cursor/skills/usually\n\n# 然后问一句：\nlist my usual prompts",
+                cmd_en:"git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket\nmkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs\n\ncp -r .agents/skills/usually ~/.cursor/skills/usually\n\n# then ask:\nlist my usual prompts",
                 img:"img/demo-cursor.png" },
     copilot:  { label:"GitHub Copilot",
-                cmd_zh:"mkdir -p ~/.copilot/skills\ncp -r .agents/skills/usually ~/.copilot/skills/usually\n\n# agent 模式下问一句：\nlist my usual prompts",
-                cmd_en:"mkdir -p ~/.copilot/skills\ncp -r .agents/skills/usually ~/.copilot/skills/usually\n\n# agent mode:\nlist my usual prompts",
+                cmd_zh:"git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket\nmkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs\n\nmkdir -p ~/.copilot/skills\ncp -r .agents/skills/usually ~/.copilot/skills/usually\n\n# agent 模式下问一句：\nlist my usual prompts",
+                cmd_en:"git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket\nmkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs\n\nmkdir -p ~/.copilot/skills\ncp -r .agents/skills/usually ~/.copilot/skills/usually\n\n# agent mode:\nlist my usual prompts",
                 img:"img/demo-copilot.png" },
     gemini:   { label:"Gemini CLI",
-                cmd_zh:"mkdir -p ~/.gemini/skills\ncp -r .gemini/skills/usually ~/.gemini/skills/usually\n\n# 然后问一句：\nlist my usual prompts",
-                cmd_en:"mkdir -p ~/.gemini/skills\ncp -r .gemini/skills/usually ~/.gemini/skills/usually\n\n# then ask:\nlist my usual prompts",
+                cmd_zh:"git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket\nmkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs\n\nmkdir -p ~/.gemini/skills\ncp -r .gemini/skills/usually ~/.gemini/skills/usually\n\n# 然后问一句：\nlist my usual prompts",
+                cmd_en:"git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket\nmkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs\n\nmkdir -p ~/.gemini/skills\ncp -r .gemini/skills/usually ~/.gemini/skills/usually\n\n# then ask:\nlist my usual prompts",
                 img:"img/demo-gemini.png" }
   };
   var platform = 'claude';
@@ -330,7 +328,6 @@
     }
     var copyLabel = (lang === 'zh') ? '复制' : 'Copy';
     document.getElementById('copyBtn').textContent = copyLabel;
-    document.getElementById('copySetup').textContent = copyLabel;
     renderPlatform();
   }
 
@@ -387,7 +384,6 @@
     }catch(e){ return false; }
   }
   wireCopy('copyBtn');
-  wireCopy('copySetup');
 
   applyLang();
 </script>
