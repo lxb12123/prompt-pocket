@@ -9,7 +9,7 @@
       "name": "prompt-pocket",
       "source": "./",
       "description": "Cross-agent prompt pocket: remember your most-used prompts and pick one to run; auto-scans Claude Code, Codex and OpenCode sessions to record prompts repeated 7+ times. Forged by Agent Path Forge.",
-      "version": "0.1.0"
+      "version": "0.2.0"
     }
   ]
 }

@@ -16,10 +16,11 @@ The deterministic core is `pocket.mjs`. **Resolve its path once, then reuse it:*
 - Preferred: `~/.prompt-pocket/pocket.mjs` (absolute — works on every host and from any
   directory, including global / plugin installs).
 - In this repo: `skills/usually/scripts/pocket.mjs` also works.
-- **Bootstrap** (do this if `~/.prompt-pocket/pocket.mjs` is missing and you can see the
-  repo copy): `mkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs`
-- **Keep it fresh**: if you can see the repo copy, refresh the runtime copy so the native
-  dropdown feature is present: `cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs`
+- **Normally you do nothing to install/update it**: the plugin's SessionStart hook
+  (`hooks/sync-runtime.mjs`) creates `~/.prompt-pocket/pocket.mjs` on first run and
+  re-syncs it from the plugin after every `/plugin update` — so it's always current.
+- **Fallback** (only if `~/.prompt-pocket/pocket.mjs` is missing — e.g. a non-plugin /
+  repo checkout where the hook never ran): `mkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs`
 
 Below, `POCKET` means whichever path exists — e.g. run `node ~/.prompt-pocket/pocket.mjs <command>`.
 
