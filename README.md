@@ -142,13 +142,14 @@ Invoke: in agent mode, ask "list my usual prompts". Project‑scoped: this repo 
 ### 6. Gemini CLI
 
 ```bash
-# Gemini reads AGENTS.md project context; or add the /usually command:
-mkdir -p ~/.gemini/commands
+# Native skill (Gemini reads SKILL.md from ~/.gemini/skills or the shared ~/.agents/skills):
+mkdir -p ~/.gemini/skills && cp -r .gemini/skills/usually ~/.gemini/skills/usually
 ```
 
-Project‑scoped: run `gemini` in the repo — it reads `AGENTS.md` and learns the skill; ask
-"list my usual prompts". (Gemini's custom commands use TOML in `~/.gemini/commands/`; the
-AGENTS.md route needs no extra setup.)
+Project‑scoped: run `gemini` in the repo — it reads `.gemini/skills/usually/SKILL.md` (and
+`AGENTS.md` context) and learns the skill; ask "list my usual prompts". User‑level skills live
+in `~/.gemini/skills/`, with `~/.agents/skills/` as a shared cross‑runtime alias (so the Codex
+copy doubles as Gemini's). Gemini's custom commands use TOML in `~/.gemini/commands/`.
 
 ### 7. Any other AGENTS.md / SKILL.md agent (Windsurf, Cline, Zed, Amp, …)
 
@@ -328,6 +329,18 @@ git commit -am "…" && git push          # open a PR
 That's it — users pick it up with a single `/plugin update`, and their next session's
 `SessionStart` hook re‑syncs the runtime core automatically (see [Updating](#updating)).
 
+**Editing the skill text.** The skill is authored once in `skills/usually/prompt.md` (body)
++ `skills/usually/skill.yaml` (metadata). Every other copy — the canonical
+`skills/usually/SKILL.md` and each host mirror (`.claude/`, `.opencode/`, `.agents/`,
+`.gemini/`, `.cursor/`) — is **generated**. After editing the source, run:
+
+```bash
+node scripts/sync-mirrors.mjs            # regenerate all 6 targets from the source pair
+node scripts/sync-mirrors.mjs --check    # CI/pre-commit guard: exit 1 if any target is stale
+```
+
+`sync-mirrors.test.mjs` runs the same `--check` logic, so a stale mirror fails the test suite.
+
 ---
 
 ## Adding a platform
@@ -363,14 +376,18 @@ prompt-pocket/
 │   ├── scripts/pocket.mjs       # deterministic core: store + CRUD + cross-agent scan
 │   └── reference/               # store & scan rules, read on demand
 ├── commands/usually.md          # Claude / generic slash-command entry point
+├── scripts/                     # bump-version.mjs (release) + sync-mirrors.mjs (skill compiler)
 ├── .opencode/                   # OpenCode-native skill + /usually command
-├── .agents/skills/usually/      # cross-agent SKILL.md (Copilot, Cursor, Windsurf, …)
+├── .agents/skills/usually/      # cross-agent SKILL.md (Codex, Copilot, Gemini, Windsurf, …)
+├── .gemini/skills/usually/      # Gemini-native skill mirror
 ├── AGENTS.md                    # open standard — Codex / Cursor / Copilot / Gemini / OpenCode
 └── .cursor/rules/               # native Cursor rule
 ```
 
-> The per‑host skill files (`.claude/`, `.opencode/`, `.agents/`) all mirror the single
-> source of truth, `skills/usually/prompt.md`, and call the same `pocket.mjs`.
+> `skills/usually/prompt.md` (body) + `skills/usually/skill.yaml` (metadata) are the single
+> source of truth. The canonical `skills/usually/SKILL.md` and every per‑host mirror
+> (`.claude/`, `.opencode/`, `.agents/`, `.gemini/`, `.cursor/`) are **generated** from it by
+> `scripts/sync-mirrors.mjs` — never hand‑edited — and all call the same `pocket.mjs`.
 
 ## License
 
