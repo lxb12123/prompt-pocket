@@ -311,16 +311,22 @@ cp /path/to/prompt-pocket/skills/usually/scripts/pocket.mjs ~/.prompt-pocket/poc
 node ~/.prompt-pocket/pocket.mjs sync                     # rebuild the dropdown commands
 ```
 
-> **Maintainer note:** the official `/plugin update` only reinstalls when the **version
-> changes**, and it must change in **both** `.claude-plugin/plugin.json` and
-> `.claude-plugin/marketplace.json` or users' one‑click update is a no‑op. Do it in one
-> command from repo root:
->
-> ```bash
-> node scripts/bump-version.mjs patch     # or: minor | major | 0.4.2
-> ```
->
-> Then commit, push, merge to main — users pick it up with a single `/plugin update`.
+---
+
+## Releasing (maintainers)
+
+Users only get a new version when the plugin's **version changes** — `/plugin update` is a
+silent no‑op otherwise, and the version must change in **both** `.claude-plugin/plugin.json`
+and `.claude-plugin/marketplace.json`. So every release is three steps from repo root:
+
+```bash
+node scripts/bump-version.mjs patch     # or: minor | major | 0.4.2  (updates both manifests)
+git commit -am "…" && git push          # open a PR
+# merge to main
+```
+
+That's it — users pick it up with a single `/plugin update`, and their next session's
+`SessionStart` hook re‑syncs the runtime core automatically (see [Updating](#updating)).
 
 ---
 
