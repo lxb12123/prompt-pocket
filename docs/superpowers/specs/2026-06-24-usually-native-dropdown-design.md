@@ -28,10 +28,10 @@ prompt** into each host's command directory.
 | Type `/usually` filters to your prompts | ✅ `/usually:<slug>` | ✅ `/usually:<slug>` | ❌ only `/prompts:usually-<slug>` (fixed `prompts:` prefix; no subdir namespace) |
 | Dropdown shows `description`, ⬆️/⬇️ + Enter runs | ✅ | ✅ | ✅ |
 | Body sent as the prompt | ✅ | ✅ (`$ARGUMENTS`/`$1` placeholders exist) | ✅ (`$1`/`$ARGUMENTS`; `$$` = literal `$`) |
-| Subdirectory namespace | ✅ colon | ✅ colon (use **singular** `command/`) | ❌ subdirs ignored, flat only |
+| Subdirectory namespace | ✅ colon | ✅ colon (use canonical plural `commands/`; singular `command/` is a backwards-compat alias) | ❌ subdirs ignored, flat only |
 | Live reload after writing files | reopen `/` menu | ⚠️ may need session restart | ❌ restart / new chat required |
-| Global dir | `~/.claude/commands/` | `~/.config/opencode/command/` | `~/.codex/prompts/` |
-| Owns a dedicated subdir? | ✅ `commands/usually/` | ✅ `command/usually/` | ❌ **shared** `prompts/` dir |
+| Global dir | `~/.claude/commands/` | `~/.config/opencode/commands/` | `~/.codex/prompts/` |
+| Owns a dedicated subdir? | ✅ `commands/usually/` | ✅ `commands/usually/` | ❌ **shared** `prompts/` dir |
 | Status | normal | normal | ⚠️ custom prompts officially deprecated (still functional) |
 
 Claude Code + OpenCode are genuinely unified (identical `/usually:<slug>` form, same
@@ -64,7 +64,7 @@ Driven by a small **targets table**, so adding/removing a host is one row:
 | host | dir | guard (only if exists) | naming | owns dir? |
 |---|---|---|---|---|
 | claude | `~/.claude/commands/usually/` | `~/.claude/` | `<slug>.md` → `/usually:<slug>` | yes (dedicated subdir) |
-| opencode | `~/.config/opencode/command/usually/` | `~/.config/opencode/` | `<slug>.md` → `/usually:<slug>` | yes (dedicated subdir) |
+| opencode | `~/.config/opencode/commands/usually/` | `~/.config/opencode/` | `<slug>.md` → `/usually:<slug>` | yes (dedicated subdir) |
 | codex | `~/.codex/prompts/` | `~/.codex/` | `usually-<slug>.md` → `/prompts:usually-<slug>` | **no (shared)** |
 
 For each target whose guard dir exists:
@@ -154,7 +154,7 @@ pocket.mjs <cmd>  ──mutates──►  ~/.prompt-pocket/store.json
         │
         └─ regenCommands(high)  ──for each installed host──►
               ~/.claude/commands/usually/<slug>.md            → /usually:<slug>
-              ~/.config/opencode/command/usually/<slug>.md     → /usually:<slug>
+              ~/.config/opencode/commands/usually/<slug>.md     → /usually:<slug>
               ~/.codex/prompts/usually-<slug>.md               → /prompts:usually-<slug>
                                                         │
                               host scans its command dir → dropdown entries

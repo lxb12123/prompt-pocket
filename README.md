@@ -228,7 +228,7 @@ round‑trip:
 
 The slug is a short readable fragment of the prompt (letters/CJK/digits, ≤12 chars); the
 full phrase is always in the entry's description. Generated files are written to
-`~/.claude/commands/usually/`, `~/.config/opencode/command/usually/`, and
+`~/.claude/commands/usually/`, `~/.config/opencode/commands/usually/`, and
 `~/.codex/prompts/usually-*.md`. Only files carrying the `<!-- prompt-pocket:generated -->`
 marker are ever deleted, and Codex's shared prompts dir is additionally gated by the
 `usually-` prefix — your own prompts are never touched. Run `pocket.mjs sync` to rebuild the

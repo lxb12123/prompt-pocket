@@ -17,7 +17,7 @@
 //   find  <query...>         search prompts by substring
 // Output is always a single JSON object on stdout.
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync, unlinkSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync, unlinkSync, rmdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { homedir } from 'node:os';
 import { createHash } from 'node:crypto';
@@ -188,9 +188,14 @@ const TARGETS = [
     managerPath: join(HOME, '.claude', 'commands', 'usually.md') },
   { host: 'opencode',
     guard: join(HOME, '.config', 'opencode'),
-    dir: join(HOME, '.config', 'opencode', 'command', 'usually'),
+    dir: join(HOME, '.config', 'opencode', 'commands', 'usually'),
     name: (slug) => `${slug}.md`, esc: true,
-    managerPath: join(HOME, '.config', 'opencode', 'command', 'usually.md') },
+    managerPath: join(HOME, '.config', 'opencode', 'commands', 'usually.md'),
+    // OpenCode's canonical dir is plural `commands/`; older builds of this tool wrote to
+    // singular `command/` (a backwards-compat alias OpenCode still reads). Clean those up so
+    // users don't end up with duplicate /usually: entries served from both directories.
+    legacy: { dir: join(HOME, '.config', 'opencode', 'command', 'usually'),
+              managerPath: join(HOME, '.config', 'opencode', 'command', 'usually.md') } },
   { host: 'codex',
     guard: join(HOME, '.codex'),
     dir: join(HOME, '.codex', 'prompts'),
@@ -249,6 +254,30 @@ function fileMarkdown(text, count, esc) {
     `it now; do not echo it back or ask whether to proceed:\n\n${body}\n`;
 }
 
+// Remove files we generated under a host's *previous* directory layout (marker-gated, so a
+// user-authored file is never touched). Used when a host's canonical dir name changes.
+function cleanupLegacy(t) {
+  if (!t.legacy) return;
+  const { dir, managerPath } = t.legacy;
+  try {
+    if (existsSync(dir)) {
+      for (const f of readdirSync(dir)) {
+        if (!f.endsWith('.md')) continue;
+        const full = join(dir, f);
+        let content = '';
+        try { content = readFileSync(full, 'utf8'); } catch { continue; }
+        if (content.includes(GEN_MARKER)) { try { unlinkSync(full); } catch {} }
+      }
+      try { if (readdirSync(dir).length === 0) rmdirSync(dir); } catch {}   // only if now empty
+    }
+    if (managerPath && existsSync(managerPath)) {
+      let content = '';
+      try { content = readFileSync(managerPath, 'utf8'); } catch {}
+      if (content.includes(GEN_MARKER)) { try { unlinkSync(managerPath); } catch {} }
+    }
+  } catch {}
+}
+
 function regenForTarget(t, high) {
   if (!existsSync(t.guard)) return { skipped: `no-${t.host}-dir` };
   try {
@@ -270,6 +299,7 @@ function regenForTarget(t, high) {
       writeFileSync(join(t.dir, t.name(s)), fileMarkdown(p.text, p.count, t.esc));
       written++;
     }
+    cleanupLegacy(t);
     return { written, dir: t.dir, ...regenManager(t) };
   } catch (e) {
     return { written: 0, error: String((e && e.message) || e) };

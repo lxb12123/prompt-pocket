@@ -82,7 +82,7 @@ test('sync writes OpenCode (namespaced) and Codex (prefixed) files', () => {
   assert.equal(res.byHost.opencode.written, 1);
   assert.equal(res.byHost.codex.written, 1);
 
-  const ocDir = join(home, '.config', 'opencode', 'command', 'usually');
+  const ocDir = join(home, '.config', 'opencode', 'commands', 'usually');
   const ocFiles = readdirSync(ocDir).filter(f => f.endsWith('.md'));
   assert.equal(ocFiles.length, 1);
   assert.match(readFileSync(join(ocDir, ocFiles[0]), 'utf8'), /\$\$HOME/);   // $ escaped
@@ -92,6 +92,48 @@ test('sync writes OpenCode (namespaced) and Codex (prefixed) files', () => {
   assert.equal(cxFiles.length, 1);
   assert.ok(cxFiles[0].startsWith('usually-'));
   assert.match(readFileSync(join(cxDir, cxFiles[0]), 'utf8'), /\$\$HOME/);
+  rmSync(home, { recursive: true, force: true });
+});
+
+test('sync migrates OpenCode legacy singular command/ → plural commands/ (marker-gated)', () => {
+  const home = makeHome();
+  mkdirSync(join(home, '.config', 'opencode'), { recursive: true });
+  // simulate a prior install that wrote to the singular legacy dir
+  const legacyDir = join(home, '.config', 'opencode', 'command', 'usually');
+  mkdirSync(legacyDir, { recursive: true });
+  writeFileSync(join(legacyDir, 'old.md'), `${'<!-- prompt-pocket:generated -->'}\nstale\n`);
+  writeFileSync(join(legacyDir, 'mine.md'), 'hand-written, no marker\n');       // user file: must survive
+  const legacyMgr = join(home, '.config', 'opencode', 'command', 'usually.md');
+  writeFileSync(legacyMgr, `${'<!-- prompt-pocket:generated -->'}\nstale manager\n`);
+
+  seedStore(home, [P('a fresh prompt', 9)]);
+  run(home, 'sync');
+
+  // new plural dir is now the source of truth
+  const newDir = join(home, '.config', 'opencode', 'commands', 'usually');
+  assert.equal(readdirSync(newDir).filter(f => f.endsWith('.md')).length, 1, 'written to plural commands/');
+  assert.ok(existsSync(join(home, '.config', 'opencode', 'commands', 'usually.md')), 'plural manager written');
+  // our marked legacy files are gone; the user's unmarked file survives
+  assert.ok(!existsSync(join(legacyDir, 'old.md')), 'marked legacy command removed');
+  assert.ok(!existsSync(legacyMgr), 'marked legacy manager removed');
+  assert.ok(existsSync(join(legacyDir, 'mine.md')), 'unmarked user file preserved');
+  rmSync(home, { recursive: true, force: true });
+});
+
+test('sync preserves an UNMARKED OpenCode legacy manager and removes an emptied legacy dir', () => {
+  const home = makeHome();
+  mkdirSync(join(home, '.config', 'opencode'), { recursive: true });
+  const legacyDir = join(home, '.config', 'opencode', 'command', 'usually');
+  mkdirSync(legacyDir, { recursive: true });
+  writeFileSync(join(legacyDir, 'gen.md'), `${'<!-- prompt-pocket:generated -->'}\nstale\n`);  // only OUR marked file here
+  const legacyMgr = join(home, '.config', 'opencode', 'command', 'usually.md');
+  writeFileSync(legacyMgr, '---\ndescription: my own\n---\nhand-written manager, no marker\n');  // user file: must survive
+
+  seedStore(home, [P('another fresh prompt', 9)]);
+  run(home, 'sync');
+
+  assert.ok(!existsSync(legacyDir), 'legacy dir holding only our marked files is removed');
+  assert.ok(existsSync(legacyMgr), 'unmarked legacy manager (user file) is preserved');
   rmSync(home, { recursive: true, force: true });
 });
 
@@ -141,7 +183,7 @@ test('sync creates a bare /usually manager command for Claude + OpenCode (with h
   assert.match(body, /<!-- prompt-pocket:generated -->/);
   assert.match(body, /argument-hint:/);
 
-  assert.ok(existsSync(join(home, '.config', 'opencode', 'command', 'usually.md')), 'opencode manager exists');
+  assert.ok(existsSync(join(home, '.config', 'opencode', 'commands', 'usually.md')), 'opencode manager exists');
   // Codex has no bare command concept — no manager file (only usually-<slug>.md run buttons)
   assert.ok(!existsSync(join(home, '.codex', 'prompts', 'usually.md')), 'no codex manager');
   rmSync(home, { recursive: true, force: true });

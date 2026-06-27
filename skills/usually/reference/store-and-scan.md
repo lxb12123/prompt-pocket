@@ -64,7 +64,7 @@ runs). Per host:
 | Host | Generated path | Invoked as | Dir ownership | Live reload |
 |---|---|---|---|---|
 | Claude Code | `~/.claude/commands/usually/<slug>.md` | `/usually:<slug>` | dedicated (ours) | reopen the `/` menu |
-| OpenCode | `~/.config/opencode/command/usually/<slug>.md` | `/usually:<slug>` | dedicated (ours) | may need a session restart |
+| OpenCode | `~/.config/opencode/commands/usually/<slug>.md` | `/usually:<slug>` | dedicated (ours) | may need a session restart |
 | Codex | `~/.codex/prompts/usually-<slug>.md` | `/prompts:usually-<slug>` | **shared** with the user's own prompts | restart / new chat required |
 
 - `<slug>` keeps only letters (incl. CJK) and digits from the text, capped at 12 chars,
