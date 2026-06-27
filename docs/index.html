@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompt Pocket — 别再重复打同一句 Prompt</title>
+<meta name="description" content="Prompt Pocket：存一次，从 / 下拉里选了就跑 —— 每个 AI agent 都能用。Claude Code、Codex、OpenCode、Cursor、Copilot、Gemini。">
+<link rel="icon" href="img/prompt-pocket-mascot.png">
+<style>
+  :root{
+    --bg1:#FDF5EC; --bg2:#FBE7D3; --bg3:#F7DCC4;
+    --accent:#D2744A; --accent-dark:#C96A41;
+    --text:#3A2418; --muted:#6E5544;
+    --chip-bg:#FBEADB; --chip-border:#EFCDAE; --chip-text:#B05B36;
+    --surface:#FFFFFF; --surface-soft:#FFFBF5;
+    --shadow:0 16px 40px rgba(193,95,60,.14);
+    --shadow-sm:0 6px 18px rgba(193,95,60,.10);
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  html,body{overflow-x:hidden}
+  body{
+    font-family:-apple-system,"SF Pro Display","Helvetica Neue","PingFang SC",Arial,sans-serif;
+    color:var(--text);
+    background:linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 55%,var(--bg3) 100%);
+    background-attachment:fixed;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  a{color:inherit;text-decoration:none}
+
+  /* ---------- nav ---------- */
+  .nav{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:saturate(160%) blur(12px);
+    background:rgba(253,245,236,.72);
+    border-bottom:1px solid rgba(239,205,174,.6);
+  }
+  .nav .wrap{display:flex;align-items:center;gap:18px;height:62px}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:-.3px}
+  .brand img{width:28px;height:28px;border-radius:7px}
+  .nav .links{display:flex;gap:22px;margin-left:14px}
+  .nav .links a{color:var(--muted);font-weight:600;font-size:15px;transition:color .15s}
+  .nav .links a:hover{color:var(--accent)}
+  .nav .spacer{flex:1}
+  .nav .right{display:flex;align-items:center;gap:12px}
+  #langToggle{
+    font:inherit;font-weight:700;font-size:14px;cursor:pointer;
+    color:var(--accent);background:transparent;
+    border:1px solid var(--chip-border);border-radius:999px;padding:7px 14px;
+    transition:background .15s,border-color .15s;
+  }
+  #langToggle:hover{background:var(--chip-bg)}
+
+  .btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;font-weight:700;cursor:pointer;transition:transform .12s,background .15s,box-shadow .15s;font-size:15px}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--accent);color:#fff;padding:12px 24px;box-shadow:var(--shadow-sm)}
+  .btn-primary:hover{background:var(--accent-dark)}
+  .btn-ghost{border:1px solid var(--chip-border);color:var(--text);padding:11px 20px;background:rgba(255,255,255,.5)}
+  .btn-ghost:hover{background:#fff}
+  .nav .btn-ghost{padding:8px 16px;font-size:14px}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;overflow:hidden}
+  .hero .wrap{position:relative;z-index:2;padding-top:84px;padding-bottom:72px;max-width:880px}
+  .hero-bg{position:absolute;right:-60px;top:10px;width:540px;max-width:60vw;opacity:.13;z-index:1;pointer-events:none;user-select:none;filter:drop-shadow(0 20px 30px rgba(193,95,60,.2))}
+  .blob{position:absolute;border-radius:50%;z-index:0;pointer-events:none}
+  .b1{width:560px;height:560px;left:-180px;top:-220px;background:#F6E0CA;opacity:.55}
+  .b2{width:320px;height:320px;right:-80px;bottom:-120px;background:#F2D2B0;opacity:.5}
+
+  .kicker{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--accent);background:var(--chip-bg);border:1px solid var(--chip-border);padding:7px 15px;border-radius:999px;margin-bottom:26px}
+  .kicker::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent)}
+  h1{font-size:clamp(40px,7vw,76px);line-height:1.02;font-weight:800;letter-spacing:-2px;margin-bottom:22px;max-width:14ch}
+  h1 .pop{color:var(--accent)}
+  .sub{font-size:clamp(18px,2.4vw,22px);color:var(--muted);font-weight:500;max-width:46ch;margin-bottom:32px}
+  .sub code{font-family:var(--mono);background:#fff;color:var(--accent);font-weight:700;padding:1px 9px;border-radius:7px;border:1px solid var(--chip-border);font-size:.92em}
+  .cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:34px}
+  .chips{display:flex;gap:9px;flex-wrap:wrap;max-width:660px}
+  .chip{font-size:14px;font-weight:600;color:var(--chip-text);background:var(--chip-bg);border:1px solid var(--chip-border);padding:5px 13px;border-radius:999px}
+  .chip.more{color:#C08A6A;background:transparent;border-style:dashed}
+
+  /* ---------- sections ---------- */
+  section.block{padding:64px 0}
+  .eyebrow{font-size:14px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+  h2{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-1px;margin-bottom:34px}
+
+  /* features */
+  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .card{background:var(--surface-soft);border:1px solid rgba(239,205,174,.7);border-radius:18px;padding:26px 24px;box-shadow:var(--shadow-sm);transition:transform .15s,box-shadow .15s}
+  .card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+  .card .ico{font-size:26px;display:inline-flex;width:50px;height:50px;align-items:center;justify-content:center;background:var(--chip-bg);border:1px solid var(--chip-border);border-radius:14px;margin-bottom:16px}
+  .card h3{font-size:19px;font-weight:800;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:15.5px;line-height:1.5}
+
+  /* quick start */
+  .qs-setup{background:var(--surface-soft);border:1px solid var(--chip-border);border-radius:14px;padding:16px 18px;margin-bottom:26px}
+  .qs-setup .note{font-size:14px;color:var(--muted);font-weight:600;margin-bottom:10px}
+  .codeline{display:flex;align-items:flex-start;gap:12px;min-width:0}
+  pre{font-family:var(--mono);font-size:13.5px;line-height:1.7;color:var(--text);white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;flex:1;min-width:0}
+  .copy{font:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--accent);background:#fff;border:1px solid var(--chip-border);border-radius:8px;padding:5px 11px;white-space:nowrap;transition:background .15s}
+  .copy:hover{background:var(--chip-bg)}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+  .tabs button{font:inherit;font-size:14px;font-weight:700;cursor:pointer;color:var(--muted);background:transparent;border:1px solid var(--chip-border);border-radius:999px;padding:8px 16px;transition:all .15s}
+  .tabs button:hover{color:var(--accent)}
+  .tabs button.active{color:#fff;background:var(--accent);border-color:var(--accent)}
+
+  .qs-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
+  .qs-grid>*{min-width:0}
+  .panel{background:var(--surface);border:1px solid var(--chip-border);border-radius:16px;box-shadow:var(--shadow-sm);overflow:hidden;min-width:0}
+  .panel .head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(239,205,174,.6);background:var(--surface-soft)}
+  .panel .head .dot{width:11px;height:11px;border-radius:50%;background:var(--accent);opacity:.85}
+  .panel .head .label{font-size:13px;font-weight:700;color:var(--muted);font-family:var(--mono)}
+  .panel .body{padding:18px 18px}
+  .qs-demo .frame{position:relative;height:100%;min-height:220px;display:flex;align-items:center;justify-content:center}
+  .qs-demo img{width:100%;height:auto;border-radius:10px;display:block;border:1px solid rgba(239,205,174,.7)}
+  .qs-demo img[src=""],.qs-demo img:not([src]){display:none}
+  .placeholder{display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;min-height:200px;border:2px dashed var(--chip-border);border-radius:12px;color:#C08A6A;font-weight:600;font-size:14px;background:var(--surface-soft)}
+  .placeholder .pico{font-size:30px;opacity:.6}
+  .caption{margin-top:12px;font-size:14px;color:var(--muted)}
+
+  /* footer */
+  footer{padding:40px 0 56px;border-top:1px solid rgba(239,205,174,.6);margin-top:30px;text-align:center;color:var(--muted)}
+  footer .frow{display:flex;gap:18px;justify-content:center;align-items:center;flex-wrap:wrap;font-size:15px;font-weight:600}
+  footer a:hover{color:var(--accent)}
+  footer .lic{margin-top:12px;font-size:13.5px;opacity:.85}
+
+  /* responsive */
+  @media (max-width:900px){
+    .features{grid-template-columns:1fr}
+    .qs-grid{grid-template-columns:1fr}
+    .nav .links{display:none}
+    .hero-bg{opacity:.08}
+  }
+  @media (max-width:520px){
+    .hero .wrap{padding-top:56px;padding-bottom:52px}
+    .cta .btn{flex:1;justify-content:center}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== nav ===== -->
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="img/prompt-pocket-mascot.png" alt="Prompt Pocket">Prompt Pocket</a>
+    <nav class="links">
+      <a href="#features" class="i18n" data-zh="功能" data-en="Features"></a>
+      <a href="#quickstart" class="i18n" data-zh="快速开始" data-en="Quick Start"></a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="right">
+      <button id="langToggle"></button>
+      <a class="btn btn-ghost" href="https://github.com/lxb12123/prompt-pocket" target="_blank" rel="noopener">⌗ GitHub</a>
+    </div>
+  </div>
+</header>
+
+<!-- ===== hero ===== -->
+<section class="hero" id="top">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <img class="hero-bg" src="img/prompt-pocket-mascot.png" alt="">
+  <div class="wrap">
+    <span class="kicker i18n" data-zh="跨平台 · 选了就跑" data-en="Cross-platform · pick and run"></span>
+    <h1 class="i18n" data-zh="别再重复打同一句 Prompt" data-en="Stop re-typing the same prompt."></h1>
+    <p class="sub i18n"
+       data-zh="存一次，之后在每个 session 里从 / 下拉里选了就跑 —— 每个 AI agent 都能用。"
+       data-en="Save it once, then run it from the / dropdown — in every session, across every agent."></p>
+    <div class="cta">
+      <a class="btn btn-primary i18n" href="#quickstart" data-zh="快速开始" data-en="Quick Start"></a>
+      <a class="btn btn-ghost" href="https://github.com/lxb12123/prompt-pocket" target="_blank" rel="noopener">★ Star on GitHub</a>
+    </div>
+    <div class="chips">
+      <span class="chip">Claude Code</span>
+      <span class="chip">Codex</span>
+      <span class="chip">OpenCode</span>
+      <span class="chip">Cursor</span>
+      <span class="chip">Copilot</span>
+      <span class="chip">Gemini</span>
+      <span class="chip more i18n" data-zh="+ 任何 AGENTS.md agent" data-en="+ any AGENTS.md agent"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== features ===== -->
+<section class="block" id="features">
+  <div class="wrap">
+    <div class="eyebrow i18n" data-zh="功能亮点" data-en="Highlights"></div>
+    <h2 class="i18n" data-zh="存一次，处处能跑" data-en="Save once, run anywhere"></h2>
+    <div class="features">
+      <div class="card">
+        <span class="ico">⚡</span>
+        <h3 class="i18n" data-zh="选了就跑" data-en="Pick &amp; run"></h3>
+        <p class="i18n" data-zh="存好的 prompt 直接进 / 下拉，选一下就运行，不用复制粘贴。" data-en="Saved prompts drop into the native / dropdown — pick one, it runs. No copy-paste."></p>
+      </div>
+      <div class="card">
+        <span class="ico">🧠</span>
+        <h3 class="i18n" data-zh="自动记忆" data-en="Auto-remember"></h3>
+        <p class="i18n" data-zh="重复打 7 次的 prompt 自动入袋，不用手动存。" data-en="Repeat a prompt 7× and it's pocketed automatically — no manual saving."></p>
+      </div>
+      <div class="card">
+        <span class="ico">🌐</span>
+        <h3 class="i18n" data-zh="跨平台" data-en="Cross-platform"></h3>
+        <p class="i18n" data-zh="一个口袋，所有 agent 共用：Claude Code、Codex、OpenCode……" data-en="One pocket shared by every agent: Claude Code, Codex, OpenCode…"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== quick start ===== -->
+<section class="block" id="quickstart">
+  <div class="wrap">
+    <div class="eyebrow i18n" data-zh="快速开始" data-en="Quick Start"></div>
+    <h2 class="i18n" data-zh="三步装好，挑你的平台" data-en="Set up in seconds — pick your platform"></h2>
+
+    <div class="qs-setup">
+      <div class="note i18n" data-zh="先做一次（让核心脚本随处可用）：" data-en="One-time setup (makes the core reachable anywhere):"></div>
+      <div class="codeline">
+<pre id="setupBlock">git clone https://github.com/lxb12123/prompt-pocket &amp;&amp; cd prompt-pocket
+mkdir -p ~/.prompt-pocket &amp;&amp; cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs</pre>
+        <button class="copy" id="copySetup" data-target="setupBlock"></button>
+      </div>
+    </div>
+
+    <div class="tabs" id="tabs">
+      <button data-platform="claude" class="active">Claude Code</button>
+      <button data-platform="codex">Codex</button>
+      <button data-platform="opencode">OpenCode</button>
+      <button data-platform="cursor">Cursor</button>
+      <button data-platform="copilot">Copilot</button>
+      <button data-platform="gemini">Gemini</button>
+    </div>
+
+    <div class="qs-grid">
+      <div class="panel qs-cmd">
+        <div class="head">
+          <span class="label" id="cmdLabel">claude code</span>
+          <button class="copy" id="copyBtn" data-target="cmdBlock"></button>
+        </div>
+        <div class="body"><pre id="cmdBlock"></pre></div>
+      </div>
+      <div class="panel qs-demo">
+        <div class="head">
+          <span class="dot"></span>
+          <span class="label i18n" data-zh="效果演示" data-en="Live demo"></span>
+        </div>
+        <div class="body">
+          <div class="frame">
+            <img id="demoImg" alt="">
+            <div class="placeholder" id="demoPlaceholder">
+              <span class="pico">🦘</span>
+              <span id="phText"></span>
+            </div>
+          </div>
+          <p class="caption" id="demoCaption"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== footer ===== -->
+<footer>
+  <div class="wrap">
+    <div class="frow">
+      <a href="https://github.com/lxb12123/prompt-pocket" target="_blank" rel="noopener">⌗ GitHub</a>
+      <span>·</span>
+      <a href="https://github.com/lxb12123" target="_blank" rel="noopener">lxb12123</a>
+      <span>·</span>
+      <a href="#top" class="i18n" data-zh="回到顶部" data-en="Back to top"></a>
+    </div>
+    <div class="lic">MIT © 2026 lxb12123 · Prompt Pocket</div>
+  </div>
+</footer>
+
+<script>
+  var lang = 'zh';
+
+  var PLATFORMS = {
+    claude:   { label:"claude code",
+                cmd:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n\n# first run once, then just use /usually:\n/prompt-pocket:usually",
+                img:"img/demo-claude.png",
+                cap_zh:"Claude Code：原生方向键菜单，选了直接跑。", cap_en:"Claude Code: native arrow-key menu — pick and run." },
+    codex:    { label:"codex",
+                cmd:"cp -r .agents/skills/usually ~/.codex/skills/usually\n\n# then just say:\nlist my usual prompts",
+                img:"img/demo-codex.png",
+                cap_zh:"Codex：编号列表，说一句即可。", cap_en:"Codex: numbered list — just ask." },
+    opencode: { label:"opencode",
+                cmd:"cp -r .opencode/skills/usually ~/.config/opencode/skills/usually\n\n# then type:\n/usually",
+                img:"img/demo-opencode.png",
+                cap_zh:"OpenCode：输入 /usually 直接用。", cap_en:"OpenCode: type /usually." },
+    cursor:   { label:"cursor",
+                cmd:"cp -r .agents/skills/usually ~/.cursor/skills/usually\n\n# then ask:\nlist my usual prompts",
+                img:"img/demo-cursor.png",
+                cap_zh:"Cursor：规则自动加载，问一句即可。", cap_en:"Cursor: rules auto-load — just ask." },
+    copilot:  { label:"github copilot",
+                cmd:"mkdir -p ~/.copilot/skills\ncp -r .agents/skills/usually ~/.copilot/skills/usually\n\n# agent mode:\nlist my usual prompts",
+                img:"img/demo-copilot.png",
+                cap_zh:"GitHub Copilot：agent 模式问一句。", cap_en:"GitHub Copilot: ask in agent mode." },
+    gemini:   { label:"gemini cli",
+                cmd:"mkdir -p ~/.gemini/skills\ncp -r .gemini/skills/usually ~/.gemini/skills/usually\n\n# then ask:\nlist my usual prompts",
+                img:"img/demo-gemini.png",
+                cap_zh:"Gemini CLI：读取 SKILL.md，问一句即可。", cap_en:"Gemini CLI: reads SKILL.md — just ask." }
+  };
+  var platform = 'claude';
+
+  function renderPlatform(){
+    var p = PLATFORMS[platform];
+    document.getElementById('cmdBlock').textContent = p.cmd;
+    document.getElementById('cmdLabel').textContent = p.label;
+    document.getElementById('demoCaption').textContent = (lang === 'zh' ? p.cap_zh : p.cap_en);
+    var img = document.getElementById('demoImg');
+    var ph = document.getElementById('demoPlaceholder');
+    document.getElementById('phText').textContent =
+      (lang === 'zh' ? '效果图待补 · ' : 'Screenshot coming · ') + p.label;
+    img.onload = function(){ img.style.display='block'; ph.style.display='none'; };
+    img.onerror = function(){ img.style.display='none'; ph.style.display='flex'; };
+    img.style.display='none'; ph.style.display='flex';
+    img.src = p.img;
+  }
+
+  function applyLang(){
+    document.documentElement.lang = lang;
+    var attr = (lang === 'zh') ? 'data-zh' : 'data-en';
+    var nodes = document.querySelectorAll('.i18n');
+    for (var i=0;i<nodes.length;i++){ nodes[i].textContent = nodes[i].getAttribute(attr); }
+    document.getElementById('langToggle').textContent = (lang === 'zh') ? 'EN' : '中文';
+    var copyLabel = (lang === 'zh') ? '复制' : 'Copy';
+    document.getElementById('copyBtn').textContent = copyLabel;
+    document.getElementById('copySetup').textContent = copyLabel;
+    renderPlatform();
+  }
+
+  document.getElementById('langToggle').addEventListener('click', function(){
+    lang = (lang === 'zh') ? 'en' : 'zh';
+    applyLang();
+  });
+
+  var tabBtns = document.querySelectorAll('#tabs button');
+  for (var t=0;t<tabBtns.length;t++){
+    tabBtns[t].addEventListener('click', function(){
+      for (var k=0;k<tabBtns.length;k++){ tabBtns[k].classList.remove('active'); }
+      this.classList.add('active');
+      platform = this.getAttribute('data-platform');
+      renderPlatform();
+    });
+  }
+
+  function wireCopy(btnId){
+    var btn = document.getElementById(btnId);
+    btn.addEventListener('click', function(){
+      var target = document.getElementById(btn.getAttribute('data-target'));
+      navigator.clipboard && navigator.clipboard.writeText(target.textContent);
+      var orig = (lang === 'zh') ? '复制' : 'Copy';
+      btn.textContent = (lang === 'zh') ? '已复制' : 'Copied';
+      setTimeout(function(){ btn.textContent = orig; }, 1500);
+    });
+  }
+  wireCopy('copyBtn');
+  wireCopy('copySetup');
+
+  applyLang();
+</script>
+</body>
+</html>
