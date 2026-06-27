@@ -11,7 +11,7 @@
     --bg1:#FDF5EC; --bg2:#FBE7D3; --bg3:#F7DCC4;
     --accent:#D2744A; --accent-dark:#C96A41;
     --text:#3A2418; --muted:#6E5544;
-    --chip-bg:#FBEADB; --chip-border:#EFCDAE; --chip-text:#B05B36;
+    --chip-bg:#FBEADB; --chip-border:#EFCDAE; --chip-text:#8B3F1E;
     --surface:#FFFFFF; --surface-soft:#FFFBF5;
     --shadow:0 16px 40px rgba(193,95,60,.14);
     --shadow-sm:0 6px 18px rgba(193,95,60,.10);
@@ -54,6 +54,11 @@
   }
   #langToggle:hover{background:var(--chip-bg)}
 
+  /* keyboard focus visibility */
+  a:focus-visible,button:focus-visible,.btn:focus-visible,.copy:focus-visible,.tabs button:focus-visible,#langToggle:focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px;border-radius:8px;
+  }
+
   .btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;font-weight:700;cursor:pointer;transition:transform .12s,background .15s,box-shadow .15s;font-size:15px}
   .btn:active{transform:translateY(1px)}
   .btn-primary{background:var(--accent);color:#fff;padding:12px 24px;box-shadow:var(--shadow-sm)}
@@ -65,21 +70,21 @@
   /* ---------- hero ---------- */
   .hero{position:relative;overflow:hidden}
   .hero .wrap{position:relative;z-index:2;padding-top:84px;padding-bottom:72px;max-width:880px}
-  .hero-bg{position:absolute;right:-60px;top:10px;width:540px;max-width:60vw;opacity:.13;z-index:1;pointer-events:none;user-select:none;filter:drop-shadow(0 20px 30px rgba(193,95,60,.2))}
+  .hero-bg{position:absolute;right:-20px;top:10px;width:520px;max-width:54vw;opacity:.18;z-index:1;pointer-events:none;user-select:none;filter:drop-shadow(0 20px 30px rgba(193,95,60,.2))}
   .blob{position:absolute;border-radius:50%;z-index:0;pointer-events:none}
   .b1{width:560px;height:560px;left:-180px;top:-220px;background:#F6E0CA;opacity:.55}
   .b2{width:320px;height:320px;right:-80px;bottom:-120px;background:#F2D2B0;opacity:.5}
 
   .kicker{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--accent);background:var(--chip-bg);border:1px solid var(--chip-border);padding:7px 15px;border-radius:999px;margin-bottom:26px}
   .kicker::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent)}
-  h1{font-size:clamp(40px,7vw,76px);line-height:1.02;font-weight:800;letter-spacing:-2px;margin-bottom:22px;max-width:14ch}
+  h1{font-size:clamp(40px,7vw,76px);line-height:1.12;font-weight:800;letter-spacing:-2px;margin-bottom:22px;max-width:18ch}
   h1 .pop{color:var(--accent)}
   .sub{font-size:clamp(18px,2.4vw,22px);color:var(--muted);font-weight:500;max-width:46ch;margin-bottom:32px}
   .sub code{font-family:var(--mono);background:#fff;color:var(--accent);font-weight:700;padding:1px 9px;border-radius:7px;border:1px solid var(--chip-border);font-size:.92em}
   .cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:34px}
   .chips{display:flex;gap:9px;flex-wrap:wrap;max-width:660px}
   .chip{font-size:14px;font-weight:600;color:var(--chip-text);background:var(--chip-bg);border:1px solid var(--chip-border);padding:5px 13px;border-radius:999px}
-  .chip.more{color:#C08A6A;background:transparent;border-style:dashed}
+  .chip.more{color:var(--muted);background:transparent;border-style:dashed}
 
   /* ---------- sections ---------- */
   section.block{padding:64px 0}
@@ -117,7 +122,7 @@
   .qs-demo .frame{position:relative;height:100%;min-height:220px;display:flex;align-items:center;justify-content:center}
   .qs-demo img{width:100%;height:auto;border-radius:10px;display:block;border:1px solid rgba(239,205,174,.7)}
   .qs-demo img[src=""],.qs-demo img:not([src]){display:none}
-  .placeholder{display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;min-height:200px;border:2px dashed var(--chip-border);border-radius:12px;color:#C08A6A;font-weight:600;font-size:14px;background:var(--surface-soft)}
+  .placeholder{display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;min-height:200px;border:2px dashed var(--chip-border);border-radius:12px;color:var(--muted);font-weight:600;font-size:14px;background:var(--surface-soft)}
   .placeholder .pico{font-size:30px;opacity:.6}
   .caption{margin-top:12px;font-size:14px;color:var(--muted)}
 
@@ -132,11 +137,18 @@
     .features{grid-template-columns:1fr}
     .qs-grid{grid-template-columns:1fr}
     .nav .links{display:none}
-    .hero-bg{opacity:.08}
+    .hero-bg{opacity:.12}
   }
   @media (max-width:520px){
     .hero .wrap{padding-top:56px;padding-bottom:52px}
     .cta .btn{flex:1;justify-content:center}
+  }
+  @media (max-width:380px){
+    .wrap{padding:0 16px}
+    .cta{flex-direction:column}
+    .cta .btn{width:100%}
+    .codeline{flex-direction:column}
+    .codeline .copy{align-self:flex-end;margin-bottom:6px}
   }
 </style>
 </head>
@@ -152,7 +164,7 @@
     </nav>
     <div class="spacer"></div>
     <div class="right">
-      <button id="langToggle"></button>
+      <button id="langToggle" aria-label="切换语言 / Toggle language"></button>
       <a class="btn btn-ghost" href="https://github.com/lxb12123/prompt-pocket" target="_blank" rel="noopener">⌗ GitHub</a>
     </div>
   </div>
@@ -171,7 +183,7 @@
        data-en="Save it once, then run it from the / dropdown — in every session, across every agent."></p>
     <div class="cta">
       <a class="btn btn-primary i18n" href="#quickstart" data-zh="快速开始" data-en="Quick Start"></a>
-      <a class="btn btn-ghost" href="https://github.com/lxb12123/prompt-pocket" target="_blank" rel="noopener">★ Star on GitHub</a>
+      <a class="btn btn-ghost i18n" href="https://github.com/lxb12123/prompt-pocket" target="_blank" rel="noopener" data-zh="★ 在 GitHub 点个 Star" data-en="★ Star on GitHub"></a>
     </div>
     <div class="chips">
       <span class="chip">Claude Code</span>
@@ -221,7 +233,7 @@
       <div class="codeline">
 <pre id="setupBlock">git clone https://github.com/lxb12123/prompt-pocket &amp;&amp; cd prompt-pocket
 mkdir -p ~/.prompt-pocket &amp;&amp; cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs</pre>
-        <button class="copy" id="copySetup" data-target="setupBlock"></button>
+        <button class="copy" id="copySetup" data-target="setupBlock" aria-label="复制安装命令 / Copy setup command"></button>
       </div>
     </div>
 
@@ -238,7 +250,7 @@ mkdir -p ~/.prompt-pocket &amp;&amp; cp skills/usually/scripts/pocket.mjs ~/.pro
       <div class="panel qs-cmd">
         <div class="head">
           <span class="label" id="cmdLabel">claude code</span>
-          <button class="copy" id="copyBtn" data-target="cmdBlock"></button>
+          <button class="copy" id="copyBtn" data-target="cmdBlock" aria-label="复制命令 / Copy command"></button>
         </div>
         <div class="body"><pre id="cmdBlock"></pre></div>
       </div>
@@ -280,28 +292,34 @@ mkdir -p ~/.prompt-pocket &amp;&amp; cp skills/usually/scripts/pocket.mjs ~/.pro
   var lang = 'zh';
 
   var PLATFORMS = {
-    claude:   { label:"claude code",
-                cmd:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n\n# first run once, then just use /usually:\n/prompt-pocket:usually",
+    claude:   { label:"Claude Code",
+                cmd_zh:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n\n# 首次运行一次，之后直接用 /usually：\n/prompt-pocket:usually",
+                cmd_en:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n\n# first run once, then just use /usually:\n/prompt-pocket:usually",
                 img:"img/demo-claude.png",
                 cap_zh:"Claude Code：原生方向键菜单，选了直接跑。", cap_en:"Claude Code: native arrow-key menu — pick and run." },
-    codex:    { label:"codex",
-                cmd:"cp -r .agents/skills/usually ~/.codex/skills/usually\n\n# then just say:\nlist my usual prompts",
+    codex:    { label:"Codex",
+                cmd_zh:"cp -r .agents/skills/usually ~/.codex/skills/usually\n\n# 然后直接说：\nlist my usual prompts",
+                cmd_en:"cp -r .agents/skills/usually ~/.codex/skills/usually\n\n# then just say:\nlist my usual prompts",
                 img:"img/demo-codex.png",
                 cap_zh:"Codex：编号列表，说一句即可。", cap_en:"Codex: numbered list — just ask." },
-    opencode: { label:"opencode",
-                cmd:"cp -r .opencode/skills/usually ~/.config/opencode/skills/usually\n\n# then type:\n/usually",
+    opencode: { label:"OpenCode",
+                cmd_zh:"cp -r .opencode/skills/usually ~/.config/opencode/skills/usually\n\n# 然后输入：\n/usually",
+                cmd_en:"cp -r .opencode/skills/usually ~/.config/opencode/skills/usually\n\n# then type:\n/usually",
                 img:"img/demo-opencode.png",
                 cap_zh:"OpenCode：输入 /usually 直接用。", cap_en:"OpenCode: type /usually." },
-    cursor:   { label:"cursor",
-                cmd:"cp -r .agents/skills/usually ~/.cursor/skills/usually\n\n# then ask:\nlist my usual prompts",
+    cursor:   { label:"Cursor",
+                cmd_zh:"cp -r .agents/skills/usually ~/.cursor/skills/usually\n\n# 然后问一句：\nlist my usual prompts",
+                cmd_en:"cp -r .agents/skills/usually ~/.cursor/skills/usually\n\n# then ask:\nlist my usual prompts",
                 img:"img/demo-cursor.png",
                 cap_zh:"Cursor：规则自动加载，问一句即可。", cap_en:"Cursor: rules auto-load — just ask." },
-    copilot:  { label:"github copilot",
-                cmd:"mkdir -p ~/.copilot/skills\ncp -r .agents/skills/usually ~/.copilot/skills/usually\n\n# agent mode:\nlist my usual prompts",
+    copilot:  { label:"GitHub Copilot",
+                cmd_zh:"mkdir -p ~/.copilot/skills\ncp -r .agents/skills/usually ~/.copilot/skills/usually\n\n# agent 模式下问一句：\nlist my usual prompts",
+                cmd_en:"mkdir -p ~/.copilot/skills\ncp -r .agents/skills/usually ~/.copilot/skills/usually\n\n# agent mode:\nlist my usual prompts",
                 img:"img/demo-copilot.png",
                 cap_zh:"GitHub Copilot：agent 模式问一句。", cap_en:"GitHub Copilot: ask in agent mode." },
-    gemini:   { label:"gemini cli",
-                cmd:"mkdir -p ~/.gemini/skills\ncp -r .gemini/skills/usually ~/.gemini/skills/usually\n\n# then ask:\nlist my usual prompts",
+    gemini:   { label:"Gemini CLI",
+                cmd_zh:"mkdir -p ~/.gemini/skills\ncp -r .gemini/skills/usually ~/.gemini/skills/usually\n\n# 然后问一句：\nlist my usual prompts",
+                cmd_en:"mkdir -p ~/.gemini/skills\ncp -r .gemini/skills/usually ~/.gemini/skills/usually\n\n# then ask:\nlist my usual prompts",
                 img:"img/demo-gemini.png",
                 cap_zh:"Gemini CLI：读取 SKILL.md，问一句即可。", cap_en:"Gemini CLI: reads SKILL.md — just ask." }
   };
@@ -309,13 +327,14 @@ mkdir -p ~/.prompt-pocket &amp;&amp; cp skills/usually/scripts/pocket.mjs ~/.pro
 
   function renderPlatform(){
     var p = PLATFORMS[platform];
-    document.getElementById('cmdBlock').textContent = p.cmd;
+    document.getElementById('cmdBlock').textContent = (lang === 'zh') ? p.cmd_zh : p.cmd_en;
     document.getElementById('cmdLabel').textContent = p.label;
-    document.getElementById('demoCaption').textContent = (lang === 'zh' ? p.cap_zh : p.cap_en);
+    document.getElementById('demoCaption').textContent = (lang === 'zh') ? p.cap_zh : p.cap_en;
     var img = document.getElementById('demoImg');
     var ph = document.getElementById('demoPlaceholder');
     document.getElementById('phText').textContent =
       (lang === 'zh' ? '效果图待补 · ' : 'Screenshot coming · ') + p.label;
+    img.alt = p.label + (lang === 'zh' ? ' 演示截图' : ' demo screenshot');
     img.onload = function(){ img.style.display='block'; ph.style.display='none'; };
     img.onerror = function(){ img.style.display='none'; ph.style.display='flex'; };
     img.style.display='none'; ph.style.display='flex';
@@ -351,13 +370,26 @@ mkdir -p ~/.prompt-pocket &amp;&amp; cp skills/usually/scripts/pocket.mjs ~/.pro
 
   function wireCopy(btnId){
     var btn = document.getElementById(btnId);
+    function reset(){ btn.textContent = (lang === 'zh') ? '复制' : 'Copy'; }
+    function done(){ btn.textContent = (lang === 'zh') ? '已复制' : 'Copied'; setTimeout(reset, 1500); }
     btn.addEventListener('click', function(){
-      var target = document.getElementById(btn.getAttribute('data-target'));
-      navigator.clipboard && navigator.clipboard.writeText(target.textContent);
-      var orig = (lang === 'zh') ? '复制' : 'Copy';
-      btn.textContent = (lang === 'zh') ? '已复制' : 'Copied';
-      setTimeout(function(){ btn.textContent = orig; }, 1500);
+      var text = document.getElementById(btn.getAttribute('data-target')).textContent;
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done).catch(function(){ fallbackCopy(text) && done(); });
+      } else if (fallbackCopy(text)){
+        done();
+      }
     });
+  }
+  function fallbackCopy(text){
+    try{
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    }catch(e){ return false; }
   }
   wireCopy('copyBtn');
   wireCopy('copySetup');
