@@ -286,43 +286,34 @@ node skills/usually/scripts/pocket.mjs find "<keyword>"
 
 ## Updating
 
-There are **two layers**, and only the first one matters day‑to‑day:
+**Claude Code — one click, that's it:**
 
-**1. The runtime core — `~/.prompt-pocket/pocket.mjs`.** This is what every host actually
-runs (each host file just calls it by that absolute path). To pull the latest logic:
+```text
+/plugin            # → Marketplaces → prompt-pocket-marketplace → Update
+```
+
+That re‑pulls from GitHub and reinstalls the plugin. On your **next session start**, the
+plugin's `SessionStart` hook (`hooks/sync-runtime.mjs`) silently re‑syncs the runtime core
+`~/.prompt-pocket/pocket.mjs` from the freshly installed plugin — so the code that actually
+runs (and the native `/usually:` dropdown it regenerates) is up to date with **no manual
+copy**. Your store (`~/.prompt-pocket/store.json`) is never touched.
+
+> The same hook also **bootstraps** `~/.prompt-pocket/pocket.mjs` on first install, so a
+> brand‑new install needs nothing beyond `/plugin install`.
+
+**Other hosts (Codex / OpenCode / …).** They share the same runtime core
+`~/.prompt-pocket/pocket.mjs`, so once Claude's hook refreshes it they pick up the new logic
+automatically. If you *don't* use Claude on this machine, refresh it yourself:
 
 ```bash
-git -C /path/to/prompt-pocket pull                       # get the newest source
+git -C /path/to/prompt-pocket pull
 cp /path/to/prompt-pocket/skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs
-node ~/.prompt-pocket/pocket.mjs sync                     # rebuild the / dropdown commands
+node ~/.prompt-pocket/pocket.mjs sync                     # rebuild the dropdown commands
 ```
 
-That's the whole update for behaviour changes. Your store (`~/.prompt-pocket/store.json`) is
-untouched.
-
-**2. The installed plugin copy (optional).** The Claude Code plugin (and any per‑host
-`SKILL.md` you copied) lives separately and **does not run your data** — it only carries the
-skill instructions and a *bootstrap* copy of `pocket.mjs`. It's worth refreshing so a future
-reinstall doesn't restore stale code:
-
-```text
-/plugin            # → Marketplaces → prompt-pocket-marketplace → Update  (re-pulls from GitHub)
-```
-
-or reinstall cleanly:
-
-```text
-/plugin uninstall prompt-pocket
-/plugin marketplace add lxb12123/prompt-pocket
-/plugin install prompt-pocket@prompt-pocket-marketplace
-```
-
-After a reinstall, run the **layer 1** `cp … && sync` once more so the runtime core is the
-latest too. (Codex / OpenCode / other hosts: re‑copy the skill dir per [Quick
-start](#quick-start), then `sync`.)
-
-> **Rule of thumb:** changed the logic → `git pull` → `cp pocket.mjs ~/.prompt-pocket/` →
-> `sync`. The plugin/marketplace layer only needs updating around a reinstall.
+> **Maintainer note:** the official `/plugin update` only reinstalls when the **version
+> changes** — bump `version` in **both** `.claude-plugin/plugin.json` and
+> `.claude-plugin/marketplace.json` on every release, or users' one‑click update is a no‑op.
 
 ---
 
