@@ -312,8 +312,15 @@ node ~/.prompt-pocket/pocket.mjs sync                     # rebuild the dropdown
 ```
 
 > **Maintainer note:** the official `/plugin update` only reinstalls when the **version
-> changes** — bump `version` in **both** `.claude-plugin/plugin.json` and
-> `.claude-plugin/marketplace.json` on every release, or users' one‑click update is a no‑op.
+> changes**, and it must change in **both** `.claude-plugin/plugin.json` and
+> `.claude-plugin/marketplace.json` or users' one‑click update is a no‑op. Do it in one
+> command from repo root:
+>
+> ```bash
+> node scripts/bump-version.mjs patch     # or: minor | major | 0.4.2
+> ```
+>
+> Then commit, push, merge to main — users pick it up with a single `/plugin update`.
 
 ---
 
