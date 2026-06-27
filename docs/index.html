@@ -41,11 +41,7 @@
   .nav .wrap{display:flex;align-items:center;gap:18px;height:62px}
   .brand{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:-.3px;font-size:18px}
   .brand img{height:30px;width:auto;display:block}
-  .nav .links{display:flex;gap:22px;margin-left:14px}
-  .nav .links a{color:var(--muted);font-weight:600;font-size:15px;transition:color .15s}
-  .nav .links a:hover{color:var(--accent)}
   .nav .spacer{flex:1}
-  .nav .right{display:flex;align-items:center;gap:12px}
   #langToggle{
     font:inherit;font-weight:700;font-size:14px;cursor:pointer;
     color:var(--accent);background:transparent;
@@ -65,7 +61,6 @@
   .btn-primary:hover{background:var(--accent-dark)}
   .btn-ghost{border:1px solid var(--chip-border);color:var(--text);padding:11px 20px;background:rgba(255,255,255,.5)}
   .btn-ghost:hover{background:#fff}
-  .nav .btn-ghost{padding:8px 16px;font-size:14px}
 
   /* ---------- hero ---------- */
   .hero{position:relative;overflow:hidden}
@@ -137,7 +132,6 @@
   @media (max-width:900px){
     .features{grid-template-columns:1fr}
     .qs-grid{grid-template-columns:1fr}
-    .nav .links{display:none}
     .hero-bg{opacity:.12}
   }
   @media (max-width:520px){
@@ -159,15 +153,8 @@
 <header class="nav">
   <div class="wrap">
     <a class="brand" href="#top"><img src="img/mascot-logo.svg" alt="Prompt Pocket">Prompt Pocket</a>
-    <nav class="links">
-      <a href="#features" class="i18n" data-zh="功能" data-en="Features"></a>
-      <a href="#quickstart" class="i18n" data-zh="快速开始" data-en="Quick Start"></a>
-    </nav>
     <div class="spacer"></div>
-    <div class="right">
-      <button id="langToggle" aria-label="切换语言 / Toggle language"></button>
-      <a class="btn btn-ghost" href="https://github.com/lxb12123/prompt-pocket" target="_blank" rel="noopener">⌗ GitHub</a>
-    </div>
+    <button id="langToggle" aria-label="切换语言 / Toggle language"></button>
   </div>
 </header>
 
