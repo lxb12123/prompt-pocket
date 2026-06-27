@@ -9,18 +9,24 @@ import { slugOf } from './pocket.mjs';
 
 // ---- unit: slugOf ---------------------------------------------------------
 
-test('slugOf strips spaces and punctuation, keeps letters/digits', () => {
-  const s = slugOf('hello world! pull-2');   // -> "helloworldpull2" capped to 12
+test('slugOf strips spaces and punctuation, keeps only letters/digits', () => {
+  const s = slugOf('hello world! pull-2');   // -> "helloworldpull2" (<= 16, kept whole)
   assert.match(s, /^[\p{L}\p{N}]+$/u);
-  assert.ok(s.length <= 12);
-  assert.ok(s.startsWith('helloworld'));
+  assert.equal(s, 'helloworldpull2');
 });
 
-test('slugOf keeps CJK and caps at 12 chars', () => {
-  const s = slugOf('把这段中文文字翻译成英文并润色一下');
-  assert.ok(s.length <= 12, `len ${s.length}`);
+test('slugOf keeps CJK and caps around 16 chars without a trailing dangle', () => {
+  const s = slugOf('把这段中文文字翻译成英文并润色一下');     // 17 chars -> first 16
+  assert.ok(s.length <= 28, `len ${s.length}`);
   assert.match(s, /^[\p{L}\p{N}]+$/u);
-  assert.ok(s.startsWith('把这段中'));
+  assert.equal(s, '把这段中文文字翻译成英文并润色一');
+});
+
+test('slugOf extends through an ASCII word instead of cutting it mid-token', () => {
+  // The 16-char target lands inside "Egonexflutter", so the slug should include the
+  // whole word (not the old dangling "...Egonexf"), capped at 28.
+  const s = slugOf('你帮我拉取Egonex-flutter的远程main分支来更新本地');
+  assert.equal(s, '你帮我拉取Egonexflutter');
 });
 
 test('slugOf falls back to 8-hex id when nothing keepable', () => {
@@ -68,6 +74,23 @@ test('sync writes one Claude command file per high prompt with marker', () => {
   assert.match(body, /<!-- prompt-pocket:generated -->/);
   assert.match(body, /description:/);
   assert.ok(body.includes('把这段中文文字翻译成英文并润色一下'));
+  rmSync(home, { recursive: true, force: true });
+});
+
+test('prompt text stays OUT of the preloaded description, only in the on-demand body', () => {
+  const home = makeHome();
+  mkdirSync(join(home, '.claude'), { recursive: true });
+  const PROMPT = '把这段中文文字翻译成英文并润色一下';
+  seedStore(home, [P(PROMPT, 12)]);
+  run(home, 'sync');
+  const dir = join(home, '.claude', 'commands', 'usually');
+  const content = readFileSync(join(dir, readdirSync(dir).find(f => f.endsWith('.md'))), 'utf8');
+  const descLine = content.split('\n').find(l => l.startsWith('description:'));
+  // the description is what every session preloads — it must be generic, not the prompt
+  assert.ok(descLine && !descLine.includes(PROMPT), `description leaked the prompt: ${descLine}`);
+  // ...but the body (injected only when the command is run) still carries the full prompt
+  const afterMarker = content.split('-->').slice(1).join('-->');
+  assert.ok(afterMarker.includes(PROMPT), 'full prompt must remain in the command body');
   rmSync(home, { recursive: true, force: true });
 });
 

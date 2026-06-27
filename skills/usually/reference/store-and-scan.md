@@ -67,10 +67,13 @@ runs). Per host:
 | OpenCode | `~/.config/opencode/commands/usually/<slug>.md` | `/usually:<slug>` | dedicated (ours) | may need a session restart |
 | Codex | `~/.codex/prompts/usually-<slug>.md` | `/prompts:usually-<slug>` | **shared** with the user's own prompts | restart / new chat required |
 
-- `<slug>` keeps only letters (incl. CJK) and digits from the text, capped at 12 chars,
+- `<slug>` keeps only letters (incl. CJK) and digits from the text, takes ~16 chars but
+  extends through a trailing ASCII word instead of cutting it mid-token (hard cap 28),
   falling back to the 8-char id if nothing is keepable; a numeric `-N` suffix is added only
-  on a same-run collision. The full phrase + `(N×)` lives in the file's `description`
-  (which is what the dropdown shows), so even an odd slug stays readable.
+  on a same-run collision. The slug **is** the dropdown label, so it's made readable on its
+  own. The file's `description` is kept generic (`Run this saved Prompt Pocket prompt`) on
+  purpose: it's the only part preloaded into every session, so the full prompt is never put
+  there — the full text lives in the body and runs when the entry is picked.
 - Each generated file carries the marker `<!-- prompt-pocket:generated -->`. **Only marked
   files are ever deleted.** Codex's dir is shared, so deletion there is additionally gated
   by the `usually-` filename prefix — the user's hand-written prompts are never touched.
