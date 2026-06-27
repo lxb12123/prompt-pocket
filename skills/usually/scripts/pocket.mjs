@@ -37,9 +37,10 @@ const norm = (t) => String(t).replace(/\s+/g, ' ').trim();
 const keyOf = (t) => norm(t).toLowerCase();
 const idOf = (t) => createHash('sha1').update(keyOf(t)).digest('hex').slice(0, 8);
 
-// Readable, filesystem-safe, deterministic slug from a prompt's text. This is the LABEL
-// shown in the /usually: dropdown (the command description is now generic — see
-// fileMarkdown), so it has to be recognizable. Keeps letters (incl. CJK via \p{L}) and
+// Readable, filesystem-safe, deterministic slug from a prompt's text. This is the body of
+// the LABEL shown in the /usually: dropdown (regenForTarget prefixes it with the list row
+// number `N·`; the command description itself is generic — see fileMarkdown), so it has to
+// be recognizable. Keeps letters (incl. CJK via \p{L}) and
 // digits, drops everything else, then takes ~16 chars but never cuts an ASCII word in
 // half — it extends to the word's end (hard-capped at 28). So a slug reads like
 // "你帮我拉取Egonexflutter" instead of the old mid-token "你帮我拉取Egonexf".
@@ -310,9 +311,15 @@ function regenForTarget(t, high) {
     }
     const used = new Set();
     let written = 0;
-    for (const p of high) {
-      let slug = slugOf(p.text), s = slug, n = 2;
-      while (used.has(s)) s = `${slug}-${n++}`;
+    // `high` is sorted by count (sortByCount) — the SAME order `cmdList` numbers its rows
+    // from. So `i + 1` is exactly the `#` shown in the /usually list. We prefix the dropdown
+    // label with it (e.g. `1·拉取同目录Egonexflutter`) so a dropdown entry maps 1:1 to a list
+    // row — otherwise near-identical slugs (你帮我拉取… / 帮我拉取…) are indistinguishable.
+    for (let i = 0; i < high.length; i++) {
+      const p = high[i];
+      const base = `${i + 1}·${slugOf(p.text)}`;   // U+00B7 middle dot separator
+      let s = base, n = 2;
+      while (used.has(s)) s = `${base}-${n++}`;
       used.add(s);
       writeFileSync(join(t.dir, t.name(s)), fileMarkdown(p.text, t.esc));
       written++;
@@ -385,7 +392,11 @@ function cmdScan() {
 function cmdList() {
   const store = loadStore();
   const all = sortByCount(store.prompts);
-  const high = all.filter((p) => (p.count || 0) >= THRESHOLD || p.source === 'manual');
+  // `seq` is the 1-based row number; it MATCHES the `N·` prefix on the generated dropdown
+  // entries (regenForTarget walks this same order), so the user can map list ↔ dropdown.
+  const high = all
+    .filter((p) => (p.count || 0) >= THRESHOLD || p.source === 'manual')
+    .map((p, i) => ({ ...p, seq: i + 1 }));
   out({ ok: true, action: 'list', threshold: THRESHOLD, total: all.length, high, all });
 }
 

@@ -190,6 +190,30 @@ test('sync reflects deletions and is idempotent', () => {
   rmSync(home, { recursive: true, force: true });
 });
 
+test('dropdown filenames are prefixed with the list row number (seq), matching list output', () => {
+  const home = makeHome();
+  mkdirSync(join(home, '.claude'), { recursive: true });
+  // counts 16 > 13 > 9 -> sorted; near-identical text would collide without the number
+  seedStore(home, [P('帮我拉取同目录Egonexflutter', 9),
+                   P('你帮我拉取Egonexflutter', 16),
+                   P('你需要帮助我重新拉取Egonexflutter', 13)]);
+  run(home, 'sync');
+  const dir = join(home, '.claude', 'commands', 'usually');
+  const files = readdirSync(dir).filter(f => f.endsWith('.md') && f !== 'usually.md');
+  // one file per prompt, each prefixed 1·/2·/3· in count order
+  assert.equal(files.length, 3);
+  assert.ok(files.some(f => f.startsWith('1·你帮我拉取')), `missing 1· entry: ${files}`);
+  assert.ok(files.some(f => f.startsWith('2·你需要帮助我')), `missing 2· entry: ${files}`);
+  assert.ok(files.some(f => f.startsWith('3·帮我拉取')), `missing 3· entry: ${files}`);
+
+  // list `seq` must line up with those filename prefixes
+  const list = run(home, 'list');
+  assert.deepEqual(list.high.map(p => p.seq), [1, 2, 3]);
+  assert.equal(list.high[0].text, '你帮我拉取Egonexflutter');     // seq 1 == filename 1·…
+  assert.equal(list.high[2].text, '帮我拉取同目录Egonexflutter'); // seq 3 == filename 3·…
+  rmSync(home, { recursive: true, force: true });
+});
+
 // ---- integration: user-level bare /usually manager command ----------------
 
 test('sync creates a bare /usually manager command for Claude + OpenCode (with hint), not Codex', () => {
