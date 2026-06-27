@@ -126,7 +126,6 @@
   .qs-demo img[src=""],.qs-demo img:not([src]){display:none}
   .placeholder{display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;min-height:200px;border:2px dashed var(--chip-border);border-radius:12px;color:var(--muted);font-weight:600;font-size:14px;background:var(--surface-soft)}
   .placeholder .pico{font-size:30px;opacity:.6}
-  .caption{margin-top:12px;font-size:14px;color:var(--muted)}
 
   /* footer */
   footer{padding:40px 0 56px;border-top:1px solid rgba(239,205,174,.6);margin-top:30px;text-align:center;color:var(--muted)}
@@ -219,16 +218,7 @@
 <!-- ===== quick start ===== -->
 <section class="block" id="quickstart">
   <div class="wrap">
-    <h2 class="i18n" data-zh="三步装好，挑你的平台" data-en="Set up in seconds — pick your platform"></h2>
-
-    <div class="qs-setup">
-      <div class="note i18n" data-zh="先做一次（让核心脚本随处可用）：" data-en="One-time setup (makes the core reachable anywhere):"></div>
-      <div class="codeline">
-<pre id="setupBlock">git clone https://github.com/lxb12123/prompt-pocket &amp;&amp; cd prompt-pocket
-mkdir -p ~/.prompt-pocket &amp;&amp; cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs</pre>
-        <button class="copy" id="copySetup" data-target="setupBlock" aria-label="复制安装命令 / Copy setup command"></button>
-      </div>
-    </div>
+    <h2 class="i18n" data-zh="挑你的平台，复制即用" data-en="Pick your platform — copy & run"></h2>
 
     <div class="tabs" id="tabs">
       <button data-platform="claude" class="active">Claude Code</button>
@@ -260,7 +250,6 @@ mkdir -p ~/.prompt-pocket &amp;&amp; cp skills/usually/scripts/pocket.mjs ~/.pro
               <span id="phText"></span>
             </div>
           </div>
-          <p class="caption" id="demoCaption"></p>
         </div>
       </div>
     </div>
@@ -288,33 +277,27 @@ mkdir -p ~/.prompt-pocket &amp;&amp; cp skills/usually/scripts/pocket.mjs ~/.pro
     claude:   { label:"Claude Code",
                 cmd_zh:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n\n# 首次运行一次，之后直接用 /usually：\n/prompt-pocket:usually",
                 cmd_en:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n\n# first run once, then just use /usually:\n/prompt-pocket:usually",
-                img:"img/demo-claude.png",
-                cap_zh:"Claude Code：原生方向键菜单，选了直接跑。", cap_en:"Claude Code: native arrow-key menu — pick and run." },
+                img:"img/demo-claude.png" },
     codex:    { label:"Codex",
                 cmd_zh:"cp -r .agents/skills/usually ~/.codex/skills/usually\n\n# 然后直接说：\nlist my usual prompts",
                 cmd_en:"cp -r .agents/skills/usually ~/.codex/skills/usually\n\n# then just say:\nlist my usual prompts",
-                img:"img/demo-codex.png",
-                cap_zh:"Codex：编号列表，说一句即可。", cap_en:"Codex: numbered list — just ask." },
+                img:"img/demo-codex.png" },
     opencode: { label:"OpenCode",
                 cmd_zh:"cp -r .opencode/skills/usually ~/.config/opencode/skills/usually\n\n# 然后输入：\n/usually",
                 cmd_en:"cp -r .opencode/skills/usually ~/.config/opencode/skills/usually\n\n# then type:\n/usually",
-                img:"img/demo-opencode.png",
-                cap_zh:"OpenCode：输入 /usually 直接用。", cap_en:"OpenCode: type /usually." },
+                img:"img/demo-opencode.png" },
     cursor:   { label:"Cursor",
                 cmd_zh:"cp -r .agents/skills/usually ~/.cursor/skills/usually\n\n# 然后问一句：\nlist my usual prompts",
                 cmd_en:"cp -r .agents/skills/usually ~/.cursor/skills/usually\n\n# then ask:\nlist my usual prompts",
-                img:"img/demo-cursor.png",
-                cap_zh:"Cursor：规则自动加载，问一句即可。", cap_en:"Cursor: rules auto-load — just ask." },
+                img:"img/demo-cursor.png" },
     copilot:  { label:"GitHub Copilot",
                 cmd_zh:"mkdir -p ~/.copilot/skills\ncp -r .agents/skills/usually ~/.copilot/skills/usually\n\n# agent 模式下问一句：\nlist my usual prompts",
                 cmd_en:"mkdir -p ~/.copilot/skills\ncp -r .agents/skills/usually ~/.copilot/skills/usually\n\n# agent mode:\nlist my usual prompts",
-                img:"img/demo-copilot.png",
-                cap_zh:"GitHub Copilot：agent 模式问一句。", cap_en:"GitHub Copilot: ask in agent mode." },
+                img:"img/demo-copilot.png" },
     gemini:   { label:"Gemini CLI",
                 cmd_zh:"mkdir -p ~/.gemini/skills\ncp -r .gemini/skills/usually ~/.gemini/skills/usually\n\n# 然后问一句：\nlist my usual prompts",
                 cmd_en:"mkdir -p ~/.gemini/skills\ncp -r .gemini/skills/usually ~/.gemini/skills/usually\n\n# then ask:\nlist my usual prompts",
-                img:"img/demo-gemini.png",
-                cap_zh:"Gemini CLI：读取 SKILL.md，问一句即可。", cap_en:"Gemini CLI: reads SKILL.md — just ask." }
+                img:"img/demo-gemini.png" }
   };
   var platform = 'claude';
 
@@ -322,7 +305,6 @@ mkdir -p ~/.prompt-pocket &amp;&amp; cp skills/usually/scripts/pocket.mjs ~/.pro
     var p = PLATFORMS[platform];
     document.getElementById('cmdBlock').textContent = (lang === 'zh') ? p.cmd_zh : p.cmd_en;
     document.getElementById('cmdLabel').textContent = p.label;
-    document.getElementById('demoCaption').textContent = (lang === 'zh') ? p.cap_zh : p.cap_en;
     var img = document.getElementById('demoImg');
     var ph = document.getElementById('demoPlaceholder');
     document.getElementById('phText').textContent =
