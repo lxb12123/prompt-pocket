@@ -107,10 +107,11 @@
   .copy{font:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--accent);background:#fff;border:1px solid var(--chip-border);border-radius:8px;padding:5px 11px;white-space:nowrap;transition:background .15s}
   .copy:hover{background:var(--chip-bg)}
 
-  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
-  .tabs button{font:inherit;font-size:14px;font-weight:700;cursor:pointer;color:var(--muted);background:transparent;border:1px solid var(--chip-border);border-radius:999px;padding:8px 16px;transition:all .15s}
-  .tabs button:hover{color:var(--accent)}
-  .tabs button.active{color:#fff;background:var(--accent);border-color:var(--accent)}
+  .cmd-tabs{display:flex;gap:20px;align-items:center}
+  .cmd-tabs button{font:inherit;font-size:14px;font-weight:700;cursor:pointer;color:var(--muted);background:transparent;border:0;padding:2px 0 5px;position:relative;transition:color .15s}
+  .cmd-tabs button:hover{color:var(--accent)}
+  .cmd-tabs button.active{color:var(--text)}
+  .cmd-tabs button.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:2px;background:var(--accent)}
 
   .qs-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
   .qs-grid>*{min-width:0}
@@ -218,15 +219,13 @@
   <div class="wrap">
     <h2 class="i18n" data-zh="挑你的平台，复制即用" data-en="Pick your platform — copy & run"></h2>
 
-    <div class="tabs" id="tabs">
-      <button data-platform="claude" class="active">Claude Code</button>
-      <button data-platform="codex">Codex</button>
-    </div>
-
     <div class="qs-grid">
       <div class="panel qs-cmd">
         <div class="head">
-          <span class="label" id="cmdLabel">claude code</span>
+          <div class="cmd-tabs" id="tabs">
+            <button data-platform="claude" class="active">Claude Code</button>
+            <button data-platform="codex">Codex</button>
+          </div>
           <button class="copy" id="copyBtn" data-target="cmdBlock" aria-label="复制命令 / Copy command"></button>
         </div>
         <div class="body"><pre id="cmdBlock"></pre></div>
@@ -282,7 +281,6 @@
   function renderPlatform(){
     var p = PLATFORMS[platform];
     document.getElementById('cmdBlock').textContent = (lang === 'zh') ? p.cmd_zh : p.cmd_en;
-    document.getElementById('cmdLabel').textContent = p.label;
     var img = document.getElementById('demoImg');
     var ph = document.getElementById('demoPlaceholder');
     document.getElementById('phText').textContent =
