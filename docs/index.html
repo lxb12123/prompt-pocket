@@ -47,10 +47,18 @@
   .brand{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-weight:800;letter-spacing:-.3px;font-size:18px}
   .brand img{height:30px;width:auto;display:block}
   .nav .spacer{flex:1}
-  .lang{display:inline-flex;gap:3px;padding:4px;background:var(--chip-bg);border:1px solid var(--chip-border);border-radius:999px;box-shadow:inset 0 1px 2px rgba(193,95,60,.07)}
-  .lang button{font:inherit;font-weight:700;font-size:13px;line-height:1;cursor:pointer;color:var(--muted);background:transparent;border:0;border-radius:999px;padding:7px 15px;transition:color .18s,background .18s,box-shadow .18s}
-  .lang button.active{color:#fff;background:var(--accent);box-shadow:0 2px 8px rgba(210,116,74,.32)}
-  .lang button:not(.active):hover{color:var(--accent)}
+  .langdd{position:relative}
+  .langdd-btn{display:inline-flex;align-items:center;gap:7px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;color:var(--text);background:rgba(255,255,255,.6);border:1px solid var(--chip-border);border-radius:999px;padding:8px 13px;transition:background .15s}
+  .langdd-btn:hover{background:#fff}
+  .langdd-btn .globe{width:16px;height:16px;stroke:var(--accent);fill:none;stroke-width:1.8}
+  .langdd-btn .chev{width:13px;height:13px;stroke:var(--muted);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+  .langdd.open .chev{transform:rotate(180deg)}
+  .langdd-menu{position:absolute;right:0;top:calc(100% + 8px);min-width:150px;background:var(--surface);border:1px solid var(--chip-border);border-radius:14px;box-shadow:var(--shadow);padding:6px;display:flex;flex-direction:column;gap:2px;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .16s,transform .16s,visibility .16s;z-index:60}
+  .langdd.open .langdd-menu{opacity:1;visibility:visible;transform:translateY(0)}
+  .langdd-menu button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;font:inherit;font-size:14px;font-weight:600;color:var(--text);background:transparent;border:0;border-radius:9px;padding:10px 12px;cursor:pointer;transition:background .12s}
+  .langdd-menu button:hover{background:var(--chip-bg)}
+  .langdd-menu button.active{color:var(--accent)}
+  .langdd-menu button.active::after{content:"✓";font-weight:800;font-size:13px}
 
   /* keyboard focus visibility */
   a:focus-visible,button:focus-visible{
@@ -153,9 +161,16 @@
   <div class="wrap">
     <a class="brand" href="#top"><img src="img/mascot-logo.svg" alt="Prompt Pocket">Prompt Pocket</a>
     <div class="spacer"></div>
-    <div class="lang" role="group" aria-label="语言 / Language">
-      <button type="button" data-lang="zh" aria-label="中文">中</button>
-      <button type="button" data-lang="en" aria-label="English">EN</button>
+    <div class="langdd" id="langdd">
+      <button type="button" class="langdd-btn" id="langBtn" aria-haspopup="true" aria-expanded="false" aria-label="切换语言 / Switch language">
+        <svg class="globe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18Z"/></svg>
+        <span id="langCurrent">中文</span>
+        <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="langdd-menu" id="langMenu" role="menu">
+        <button type="button" role="menuitem" data-lang="zh">中文</button>
+        <button type="button" role="menuitem" data-lang="en">English</button>
+      </div>
     </div>
   </div>
 </header>
@@ -325,11 +340,12 @@ mkdir -p ~/.prompt-pocket &amp;&amp; cp skills/usually/scripts/pocket.mjs ~/.pro
     var attr = (lang === 'zh') ? 'data-zh' : 'data-en';
     var nodes = document.querySelectorAll('.i18n');
     for (var i=0;i<nodes.length;i++){ nodes[i].textContent = nodes[i].getAttribute(attr); }
-    var segs = document.querySelectorAll('.lang button');
-    for (var s=0;s<segs.length;s++){
-      var on = segs[s].getAttribute('data-lang') === lang;
-      segs[s].classList.toggle('active', on);
-      segs[s].setAttribute('aria-pressed', on ? 'true' : 'false');
+    document.getElementById('langCurrent').textContent = (lang === 'zh') ? '中文' : 'English';
+    var menuItems = document.querySelectorAll('#langMenu button');
+    for (var s=0;s<menuItems.length;s++){
+      var on = menuItems[s].getAttribute('data-lang') === lang;
+      menuItems[s].classList.toggle('active', on);
+      menuItems[s].setAttribute('aria-current', on ? 'true' : 'false');
     }
     var copyLabel = (lang === 'zh') ? '复制' : 'Copy';
     document.getElementById('copyBtn').textContent = copyLabel;
@@ -337,13 +353,24 @@ mkdir -p ~/.prompt-pocket &amp;&amp; cp skills/usually/scripts/pocket.mjs ~/.pro
     renderPlatform();
   }
 
-  var langBtns = document.querySelectorAll('.lang button');
-  for (var L=0;L<langBtns.length;L++){
-    langBtns[L].addEventListener('click', function(){
+  var langdd = document.getElementById('langdd');
+  var langBtn = document.getElementById('langBtn');
+  function closeLang(){ langdd.classList.remove('open'); langBtn.setAttribute('aria-expanded','false'); }
+  langBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    var open = langdd.classList.toggle('open');
+    langBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  var langItems = document.querySelectorAll('#langMenu button');
+  for (var L=0;L<langItems.length;L++){
+    langItems[L].addEventListener('click', function(){
       lang = this.getAttribute('data-lang');
       applyLang();
+      closeLang();
     });
   }
+  document.addEventListener('click', function(e){ if (!langdd.contains(e.target)) closeLang(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeLang(); });
 
   var tabBtns = document.querySelectorAll('#tabs button');
   for (var t=0;t<tabBtns.length;t++){
