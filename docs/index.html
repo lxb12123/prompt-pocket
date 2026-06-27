@@ -182,8 +182,8 @@
     <div class="hero-brand">Prompt Pocket</div>
     <h1 class="i18n" data-zh="别再重复打同一句 Prompt" data-en="Stop re-typing the same prompt."></h1>
     <p class="sub i18n"
-       data-zh="存一次，之后在每个 session 里从 / 下拉里选了就跑。"
-       data-en="Save it once, then run it from the / dropdown, in every session."></p>
+       data-zh="存一次，之后在每个 session 里从 <code>/usually</code> 下拉里选了就跑。"
+       data-en="Save it once, then run it from the <code>/usually</code> dropdown, in every session."></p>
     <div class="cta">
       <a class="btn btn-primary i18n" href="#quickstart" data-zh="快速开始" data-en="Quick Start"></a>
       <a class="btn btn-ghost i18n" href="https://github.com/lxb12123/prompt-pocket" target="_blank" rel="noopener" data-zh="★ 在 GitHub 点个 Star" data-en="★ Star on GitHub"></a>
@@ -297,7 +297,7 @@
     document.documentElement.lang = lang;
     var attr = (lang === 'zh') ? 'data-zh' : 'data-en';
     var nodes = document.querySelectorAll('.i18n');
-    for (var i=0;i<nodes.length;i++){ nodes[i].textContent = nodes[i].getAttribute(attr); }
+    for (var i=0;i<nodes.length;i++){ nodes[i].innerHTML = nodes[i].getAttribute(attr); }
     document.getElementById('langCurrent').textContent = (lang === 'zh') ? '中文' : 'English';
     var menuItems = document.querySelectorAll('#langMenu button');
     for (var s=0;s<menuItems.length;s++){
