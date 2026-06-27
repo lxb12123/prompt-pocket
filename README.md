@@ -4,6 +4,8 @@
 
 # Prompt Pocket
 
+**English** · [中文](README.zh-CN.md)
+
 **Stop re‑typing the same prompt. Tuck it in your pocket and run it with one tap — across every agent.**
 
 </div>
