@@ -37,11 +37,23 @@ const norm = (t) => String(t).replace(/\s+/g, ' ').trim();
 const keyOf = (t) => norm(t).toLowerCase();
 const idOf = (t) => createHash('sha1').update(keyOf(t)).digest('hex').slice(0, 8);
 
-// Readable, filesystem-safe, deterministic slug from a prompt's text.
-// Keeps letters (incl. CJK via \p{L}) and digits; drops everything else; caps at 12.
+// Readable, filesystem-safe, deterministic slug from a prompt's text. This is the LABEL
+// shown in the /usually: dropdown (the command description is now generic — see
+// fileMarkdown), so it has to be recognizable. Keeps letters (incl. CJK via \p{L}) and
+// digits, drops everything else, then takes ~16 chars but never cuts an ASCII word in
+// half — it extends to the word's end (hard-capped at 28). So a slug reads like
+// "你帮我拉取Egonexflutter" instead of the old mid-token "你帮我拉取Egonexf".
 function slugOf(text) {
-  const base = norm(text).replace(/[^\p{L}\p{N}]/gu, '').slice(0, 12);
-  return base || idOf(text);
+  const chars = [...norm(text).replace(/[^\p{L}\p{N}]/gu, '')];   // code-point aware
+  if (!chars.length) return idOf(text);
+  const TARGET = 16, MAX = 28;
+  if (chars.length <= TARGET) return chars.join('');
+  const isWord = (c) => c !== undefined && /[A-Za-z0-9]/.test(c);
+  let end = TARGET;
+  if (isWord(chars[end - 1]) && isWord(chars[end])) {             // landed mid ASCII word
+    while (end < chars.length && end < MAX && isWord(chars[end])) end++;   // finish it
+  }
+  return chars.slice(0, end).join('');
 }
 const sortByCount = (arr) =>
   [...arr].sort((a, b) => (b.count || 0) - (a.count || 0) || a.text.localeCompare(b.text));
@@ -246,8 +258,14 @@ function highPrompts(store) {
     (p) => (p.count || 0) >= THRESHOLD || p.source === 'manual');
 }
 
-function fileMarkdown(text, count, esc) {
-  const desc = `${norm(text)}  (${count || 0}×)`;
+// The `description` is the ONLY part of a generated command that Claude / OpenCode preload
+// into EVERY session's context (the picker shows it as a hint). So we keep it generic and
+// tiny and NEVER put the (possibly long) prompt text here — that was the always-on context
+// cost. The full prompt lives only in the body, which is injected on demand when the
+// command actually runs. The visible dropdown label comes from the filename (see slugOf),
+// so a generic description costs nothing the user can see.
+function fileMarkdown(text, esc) {
+  const desc = 'Run this saved Prompt Pocket prompt';
   const body = esc ? text.replace(/\$/g, '$$$$') : text;   // $$$$ -> literal $$ in output
   return `---\ndescription: ${JSON.stringify(desc)}\n---\n${GEN_MARKER}\n` +
     `Run this saved Prompt Pocket prompt exactly as if the user just typed it — execute ` +
@@ -296,7 +314,7 @@ function regenForTarget(t, high) {
       let slug = slugOf(p.text), s = slug, n = 2;
       while (used.has(s)) s = `${slug}-${n++}`;
       used.add(s);
-      writeFileSync(join(t.dir, t.name(s)), fileMarkdown(p.text, p.count, t.esc));
+      writeFileSync(join(t.dir, t.name(s)), fileMarkdown(p.text, t.esc));
       written++;
     }
     cleanupLegacy(t);

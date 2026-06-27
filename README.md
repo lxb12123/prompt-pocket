@@ -222,12 +222,14 @@ round‑trip:
 
 | Host | Type this | You get |
 |---|---|---|
-| Claude Code | `/usually` | `/usually:<slug>` entries, each showing the full prompt + `(N×)` |
+| Claude Code | `/usually` | `/usually:<slug>` entries (slug = a readable fragment of the prompt); arrow‑pick one to run it |
 | OpenCode | `/usually` | same `/usually:<slug>` entries |
 | Codex | `/prompts:usually` | `/prompts:usually-<slug>` entries (Codex has no `/usually:` namespace; restart Codex to see new ones) |
 
-The slug is a short readable fragment of the prompt (letters/CJK/digits, ≤12 chars); the
-full phrase is always in the entry's description. Generated files are written to
+The slug is a readable fragment of the prompt (letters/CJK/digits, ~16 chars, never cut
+mid‑ASCII‑word). The full prompt is deliberately **kept out of each entry's description** —
+descriptions are preloaded into every session, so they're generic; the full text lives in
+the command body and runs when you pick the entry. Generated files are written to
 `~/.claude/commands/usually/`, `~/.config/opencode/commands/usually/`, and
 `~/.codex/prompts/usually-*.md`. Only files carrying the `<!-- prompt-pocket:generated -->`
 marker are ever deleted, and Codex's shared prompts dir is additionally gated by the
