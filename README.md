@@ -287,30 +287,50 @@ node skills/usually/scripts/pocket.mjs find "<keyword>"
 
 ## Updating
 
-**Claude Code — one click, that's it:**
+The repo is the single source of truth. How you pull a new version depends **only on how you
+installed** — pick your row.
+
+### Claude Code (installed as a plugin)
 
 ```text
-/plugin            # → Marketplaces → prompt-pocket-marketplace → Update
+/plugin marketplace update prompt-pocket-marketplace   # re-pulls from GitHub, updates the plugin
+/reload-plugins                                         # activate the new version in this session
 ```
 
-That re‑pulls from GitHub and reinstalls the plugin. On your **next session start**, the
-plugin's `SessionStart` hook (`hooks/sync-runtime.mjs`) silently re‑syncs the runtime core
-`~/.prompt-pocket/pocket.mjs` from the freshly installed plugin — so the code that actually
-runs (and the native `/usually:` dropdown it regenerates) is up to date with **no manual
-copy**. Your store (`~/.prompt-pocket/store.json`) is never touched.
+Equivalent in the `/plugin` menu: **Marketplaces → prompt-pocket-marketplace → Update
+marketplace** (then `/reload-plugins`). To never do this by hand again, pick **Enable
+auto-update** there — it refreshes on session start.
 
-> The same hook also **bootstraps** `~/.prompt-pocket/pocket.mjs` on first install, so a
-> brand‑new install needs nothing beyond `/plugin install`.
+You don't touch the runtime core: on the next session start the plugin's `SessionStart` hook
+(`hooks/sync-runtime.mjs`) re‑syncs `~/.prompt-pocket/pocket.mjs` from the freshly installed
+plugin and regenerates the `/usually:` dropdown. Your store (`~/.prompt-pocket/store.json`) is
+never touched. (The same hook bootstraps that file on first install, too.)
 
-**Other hosts (Codex / OpenCode / …).** They share the same runtime core
-`~/.prompt-pocket/pocket.mjs`, so once Claude's hook refreshes it they pick up the new logic
-automatically. If you *don't* use Claude on this machine, refresh it yourself:
+### Every other host (Codex / OpenCode / Cursor / Gemini / Copilot)
+
+These aren't plugins — they read the skill straight from disk, so updating = pulling the repo
+and refreshing whatever you installed.
+
+**Project‑scoped** (you `git clone`d and run the agent *inside* the repo) — one command, done:
+
+```bash
+git -C /path/to/prompt-pocket pull          # host reads the in-repo mirror + pocket.mjs directly
+```
+
+**Global** (you copied the skill into your agent's home dir at install) — pull, refresh the
+shared runtime core, re‑copy the **same** skill dir you used at install, rebuild the dropdown:
 
 ```bash
 git -C /path/to/prompt-pocket pull
-cp /path/to/prompt-pocket/skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs
-node ~/.prompt-pocket/pocket.mjs sync                     # rebuild the dropdown commands
+cp /path/to/prompt-pocket/skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs   # runtime core (shared by all hosts)
+cp -r /path/to/prompt-pocket/.agents/skills/usually ~/.codex/skills/usually              # ← swap for YOUR host's dir (see Quick start)
+node ~/.prompt-pocket/pocket.mjs sync                                                     # rebuild the /usually dropdown
 ```
+
+> `~/.prompt-pocket/pocket.mjs` is shared by every host. If you also run Claude Code here, its
+> `SessionStart` hook keeps that file current for free — the other hosts then pick up the new
+> logic with no `cp`; only the per‑host **skill text** still needs a re‑copy (or a `git pull`
+> if project‑scoped).
 
 ---
 
