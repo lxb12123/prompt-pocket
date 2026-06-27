@@ -16,10 +16,11 @@ The deterministic core is `pocket.mjs`. **Resolve its path once, then reuse it:*
 - Preferred: `~/.prompt-pocket/pocket.mjs` (absolute — works on every host and from any
   directory, including global / plugin installs).
 - In this repo: `skills/usually/scripts/pocket.mjs` also works.
-- **Bootstrap** (do this if `~/.prompt-pocket/pocket.mjs` is missing and you can see the
-  repo copy): `mkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs`
-- **Keep it fresh**: if you can see the repo copy, refresh the runtime copy so the native
-  dropdown feature is present: `cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs`
+- **Normally you do nothing to install/update it**: the plugin's SessionStart hook
+  (`hooks/sync-runtime.mjs`) creates `~/.prompt-pocket/pocket.mjs` on first run and
+  re-syncs it from the plugin after every `/plugin update` — so it's always current.
+- **Fallback** (only if `~/.prompt-pocket/pocket.mjs` is missing — e.g. a non-plugin /
+  repo checkout where the hook never ran): `mkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs`
 
 Below, `POCKET` means whichever path exists — e.g. run `node ~/.prompt-pocket/pocket.mjs <command>`.
 
@@ -63,9 +64,10 @@ language) pick one:
    ```
    node ~/.prompt-pocket/pocket.mjs list
    ```
-   Use the returned `high` array (high-frequency + manually saved prompts). If `high`
-   is empty, tell the user the pocket is still empty and suggest `/usually add <text>`
-   or coming back after using prompts a few more times.
+   Use the returned `high` array (high-frequency + manually saved prompts). Each item
+   carries a `seq` (1-based row number). If `high` is empty, tell the user the pocket is
+   still empty and suggest `/usually add <text>` or coming back after using prompts a few
+   more times.
 
 3. **Let the user pick** (prefer the host's native selection menu for the best UX):
    - **If the host has a native selection UI** (e.g. Claude Code's AskUserQuestion tool):
@@ -75,6 +77,12 @@ language) pick one:
    - **If the host has no native selection UI** (e.g. Codex / OpenCode TUI): **list them
      numbered** (`1) 16x <text>…`) and let the user reply with a number.
    Either way, the chosen prompt flows into step 4.
+
+   **Always number rows by `seq`** (use it as the leftmost `#` column of any table you
+   show). The generated dropdown entries are prefixed with the same number — e.g. list row
+   `#3` is the dropdown entry `/usually:3·…` (Codex: `/prompts:usually-3·…`) — so the user
+   can map what they see in the list to what they pick from the dropdown. Mention this so
+   they know the number is the link.
 
 4. **Run on pick**: once the user picks a prompt, **treat its text as a new instruction
    the user just gave you and start executing it** — as if they had typed it into the
