@@ -89,9 +89,12 @@ Then pick your platform:
 ```text
 /plugin marketplace add lxb12123/prompt-pocket
 /plugin install prompt-pocket@prompt-pocket-marketplace
+/reload-plugins
 ```
 
-**First run — do this once after installing:** type **`/prompt-pocket:usually`**.
+**Activate & first run:** `/reload-plugins` makes the plugin live in your current session
+(no restart needed — a new session loads it automatically; Claude Code does **not** prompt
+you). Then type **`/prompt-pocket:usually`** once.
 A freshly‑installed plugin only exposes the namespaced command `/prompt-pocket:usually`
 (Claude Code *always* prefixes plugin commands — see [Why `/usually` vs
 `/prompt-pocket:usually`](#why-usually-vs-prompt-pocketusually)). That first run scans your

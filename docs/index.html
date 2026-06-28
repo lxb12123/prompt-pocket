@@ -282,8 +282,8 @@
 
   var PLATFORMS = {
     claude:   { label:"Claude Code",
-                cmd_zh:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n\n# 首次运行一次，之后直接用 /usually：\n/prompt-pocket:usually",
-                cmd_en:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n\n# first run once, then just use /usually:\n/prompt-pocket:usually",
+                cmd_zh:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n/reload-plugins\n\n# 首次运行一次，之后直接用 /usually：\n/prompt-pocket:usually",
+                cmd_en:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n/reload-plugins\n\n# first run once, then just use /usually:\n/prompt-pocket:usually",
                 img:"img/demo-claude.png" },
     codex:    { label:"Codex",
                 cmd_zh:"git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket\nmkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs\n\ncp -r .agents/skills/usually ~/.codex/skills/usually\n\n# 然后直接说：\nlist my usual prompts",

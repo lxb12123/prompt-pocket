@@ -71,9 +71,10 @@ mkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pock
 ```text
 /plugin marketplace add lxb12123/prompt-pocket
 /plugin install prompt-pocket@prompt-pocket-marketplace
+/reload-plugins
 ```
 
-**首次运行 —— 安装后做一次：** 敲 **`/prompt-pocket:usually`**。刚装好的插件只暴露带命名空间的命令 `/prompt-pocket:usually`（Claude Code *总会*给插件命令加前缀 —— 见[为什么是 `/usually` 而不是 `/prompt-pocket:usually`](#为什么是-usually-而不是-prompt-pocketusually)）。那次首跑会扫描你的会话，并**引导生成一个裸的、全局的 `/usually`**，写在 `~/.claude/commands/usually.md`。从此以后，在任何项目里直接敲 **`/usually`** 即可。（手动方案：把 `.claude/skills/usually/` 复制到 `~/.claude/skills/`。）
+**激活并首次运行：** `/reload-plugins` 让插件在当前会话立即生效（**不用重启**——新会话会自动加载；Claude Code **不会**提示你重启）。然后敲一次 **`/prompt-pocket:usually`**。刚装好的插件只暴露带命名空间的命令 `/prompt-pocket:usually`（Claude Code *总会*给插件命令加前缀 —— 见[为什么是 `/usually` 而不是 `/prompt-pocket:usually`](#为什么是-usually-而不是-prompt-pocketusually)）。那次首跑会扫描你的会话，并**引导生成一个裸的、全局的 `/usually`**，写在 `~/.claude/commands/usually.md`。从此以后，在任何项目里直接敲 **`/usually`** 即可。（手动方案：把 `.claude/skills/usually/` 复制到 `~/.claude/skills/`。）
 
 ### 2. Codex
 
