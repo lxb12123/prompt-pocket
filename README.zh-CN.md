@@ -68,6 +68,10 @@ mkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pock
 
 ### 1. Claude Code
 
+<video src="https://github.com/lxb12123/prompt-pocket/raw/main/docs/img/demo-claude.mp4" controls muted loop></video>
+
+*装一次 → 在 `/usually:` 下拉里选一条 → 直接跑。*
+
 ```text
 /plugin marketplace add lxb12123/prompt-pocket
 /plugin install prompt-pocket@prompt-pocket-marketplace

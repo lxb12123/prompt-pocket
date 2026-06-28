@@ -123,7 +123,7 @@
   .panel .head .label{font-size:13px;font-weight:700;color:var(--muted);font-family:var(--mono)}
   .panel .body{padding:18px 18px}
   .qs-demo .frame{position:relative;height:100%;min-height:220px;display:flex;align-items:center;justify-content:center}
-  .qs-demo img{width:100%;height:auto;border-radius:10px;display:block;border:1px solid rgba(239,205,174,.7)}
+  .qs-demo img,.qs-demo video{width:100%;height:auto;border-radius:10px;display:block;border:1px solid rgba(239,205,174,.7)}
   .qs-demo img[src=""],.qs-demo img:not([src]){display:none}
   .placeholder{display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;min-height:200px;border:2px dashed var(--chip-border);border-radius:12px;color:var(--muted);font-weight:600;font-size:14px;background:var(--surface-soft)}
   .placeholder .pico{font-size:30px;opacity:.6}
@@ -251,6 +251,7 @@
         </div>
         <div class="body">
           <div class="frame">
+            <video id="demoVid" muted loop playsinline preload="metadata"></video>
             <img id="demoImg" alt="">
             <div class="placeholder" id="demoPlaceholder">
               <span class="pico">🦘</span>
@@ -284,6 +285,7 @@
     claude:   { label:"Claude Code",
                 cmd_zh:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n/reload-plugins\n\n# 首次运行一次，之后直接用 /usually：\n/prompt-pocket:usually",
                 cmd_en:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n/reload-plugins\n\n# first run once, then just use /usually:\n/prompt-pocket:usually",
+                vid:"img/demo-claude.mp4", poster:"img/demo-claude-poster.jpg",
                 img:"img/demo-claude.png" },
     codex:    { label:"Codex",
                 cmd_zh:"git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket\nmkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs\n\ncp -r .agents/skills/usually ~/.codex/skills/usually\n\n# 然后直接说：\nlist my usual prompts",
@@ -295,11 +297,22 @@
   function renderPlatform(){
     var p = PLATFORMS[platform];
     document.getElementById('cmdBlock').textContent = (lang === 'zh') ? p.cmd_zh : p.cmd_en;
+    var vid = document.getElementById('demoVid');
     var img = document.getElementById('demoImg');
     var ph = document.getElementById('demoPlaceholder');
     document.getElementById('phText').textContent =
-      (lang === 'zh' ? '效果图待补 · ' : 'Screenshot coming · ') + p.label;
-    img.alt = p.label + (lang === 'zh' ? ' 演示截图' : ' demo screenshot');
+      (lang === 'zh' ? '效果演示待补 · ' : 'Demo coming · ') + p.label;
+
+    if (p.vid){
+      img.style.display='none'; ph.style.display='none';
+      vid.style.display='block';
+      if (p.poster) vid.poster = p.poster;
+      if (vid.dataset.src !== p.vid){ vid.src = p.vid; vid.dataset.src = p.vid; }
+      var pr = vid.play(); if (pr && pr.catch) pr.catch(function(){});
+      return;
+    }
+    vid.pause(); vid.style.display='none';
+    img.alt = p.label + (lang === 'zh' ? ' 演示' : ' demo');
     img.onload = function(){ img.style.display='block'; ph.style.display='none'; };
     img.onerror = function(){ img.style.display='none'; ph.style.display='flex'; };
     img.style.display='none'; ph.style.display='flex';
