@@ -134,6 +134,15 @@
   footer a:hover{color:var(--accent)}
   footer .lic{margin-top:12px;font-size:13.5px;opacity:.85}
 
+  /* ---------- reveal (load + scroll) ---------- */
+  @keyframes pp-rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  .reveal-ready .reveal{opacity:0}
+  .reveal-ready .reveal.in{animation:pp-rise .7s cubic-bezier(.22,.61,.36,1) both;animation-delay:calc(var(--i,0)*100ms)}
+  @media (prefers-reduced-motion:reduce){
+    .reveal-ready .reveal{opacity:1}
+    .reveal-ready .reveal.in{animation:none}
+  }
+
   /* responsive */
   @media (max-width:900px){
     .features{grid-template-columns:1fr}
@@ -152,6 +161,7 @@
     .codeline .copy{align-self:flex-end;margin-bottom:6px}
   }
 </style>
+<script>(function(){if('IntersectionObserver' in window){document.documentElement.className+=' reveal-ready';}})();</script>
 </head>
 <body>
 
@@ -180,14 +190,14 @@
   <div class="blob b2"></div>
   <img class="hero-bg" src="img/mascot-art.svg" alt="" aria-hidden="true">
   <div class="wrap">
-    <div class="hero-head">
+    <div class="hero-head reveal" style="--i:0">
       <div class="hero-brand">Prompt Pocket</div>
       <h1 class="i18n" data-zh="别再重复打同一句 Prompt" data-en="Stop re-typing the same prompt."></h1>
     </div>
-    <p class="sub i18n"
+    <p class="sub i18n reveal" style="--i:1"
        data-zh="存一次，之后在每个 session 里从 <code>/usually</code> 下拉里选了就跑。"
        data-en="Save it once, then run it from the <code>/usually</code> dropdown, in every session."></p>
-    <div class="cta">
+    <div class="cta reveal" style="--i:2">
       <a class="btn btn-primary i18n" href="#quickstart" data-zh="快速开始" data-en="Quick Start"></a>
       <a class="btn btn-ghost i18n" href="https://github.com/lxb12123/prompt-pocket" target="_blank" rel="noopener" data-zh="★ 在 GitHub 点个 Star" data-en="★ Star on GitHub"></a>
     </div>
@@ -197,19 +207,19 @@
 <!-- ===== features ===== -->
 <section class="block" id="features">
   <div class="wrap">
-    <h2 class="i18n" data-zh="存一次，处处能跑" data-en="Save once, run anywhere"></h2>
+    <h2 class="i18n reveal" style="--i:0" data-zh="存一次，处处能跑" data-en="Save once, run anywhere"></h2>
     <div class="features">
-      <div class="card">
+      <div class="card reveal" style="--i:1">
         <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></span>
         <h3 class="i18n" data-zh="选了就跑" data-en="Pick &amp; run"></h3>
         <p class="i18n" data-zh="存好的 prompt 直接进 / 下拉，选一下就运行，不用复制粘贴。" data-en="Saved prompts drop into the native / dropdown — pick one, it runs. No copy-paste."></p>
       </div>
-      <div class="card">
+      <div class="card reveal" style="--i:2">
         <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z"/></svg></span>
         <h3 class="i18n" data-zh="自动记忆" data-en="Auto-remember"></h3>
         <p class="i18n" data-zh="重复打 7 次的 prompt 自动入袋，不用手动存。" data-en="Repeat a prompt 7× and it's pocketed automatically — no manual saving."></p>
       </div>
-      <div class="card">
+      <div class="card reveal" style="--i:3">
         <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg></span>
         <h3 class="i18n" data-zh="跨平台" data-en="Cross-platform"></h3>
         <p class="i18n" data-zh="一个口袋，所有 agent 共用：Claude Code、Codex、OpenCode……" data-en="One pocket shared by every agent: Claude Code, Codex, OpenCode…"></p>
@@ -221,9 +231,9 @@
 <!-- ===== quick start ===== -->
 <section class="block" id="quickstart">
   <div class="wrap">
-    <h2 class="i18n" data-zh="挑你的平台，复制即用" data-en="Pick your platform — copy & run"></h2>
+    <h2 class="i18n reveal" style="--i:0" data-zh="挑你的平台，复制即用" data-en="Pick your platform — copy & run"></h2>
 
-    <div class="qs-grid">
+    <div class="qs-grid reveal" style="--i:1">
       <div class="panel qs-cmd">
         <div class="head">
           <div class="cmd-tabs" id="tabs">
@@ -368,6 +378,27 @@
   wireCopy('copyBtn');
 
   applyLang();
+
+  // reveal content on first load + as each section scrolls into view
+  (function(){
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window) || !document.documentElement.classList.contains('reveal-ready')){
+      for (var n=0;n<els.length;n++){ els[n].classList.remove('reveal'); }
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      for (var e=0;e<entries.length;e++){
+        if (entries[e].isIntersecting){
+          entries[e].target.classList.add('in');
+          io.unobserve(entries[e].target);
+        }
+      }
+    }, { threshold:0.12, rootMargin:'0px 0px -8% 0px' });
+    for (var m=0;m<els.length;m++){
+      els[m].addEventListener('animationend', function(){ this.classList.remove('reveal','in'); });
+      io.observe(els[m]);
+    }
+  })();
 </script>
 </body>
 </html>
