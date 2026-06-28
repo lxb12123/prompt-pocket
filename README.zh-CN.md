@@ -83,7 +83,7 @@ mkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pock
 cp -r .agents/skills/usually ~/.codex/skills/usually
 ```
 
-调用方式：说"列出我的常用提示词"（Codex 没有斜杠 UI）。项目级替代方案：在仓库里运行 Codex 时，仓库的 `AGENTS.md` 会被自动读取。
+调用方式：打 `$usually 列出我的常用提示词`（或 `/skills` 选 Usually）—— 它会带编号列出，回数字执行一条。Codex 没有逐条 prompt 的下拉。项目级替代方案：在仓库里运行 Codex 时，仓库的 `AGENTS.md` 会被自动读取。
 
 ### 3. OpenCode
 

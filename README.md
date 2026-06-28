@@ -109,7 +109,7 @@ From then on, just type **`/usually`** in any project. (Manual alternative: copy
 cp -r .agents/skills/usually ~/.codex/skills/usually
 ```
 
-Invoke: say "list my usual prompts" (Codex has no slash UI). Project‑scoped alternative:
+Invoke: type `$usually list my usual prompts` (or `/skills` → pick Usually) — it lists your prompts numbered; reply with a number to run one. Codex has no per‑prompt dropdown. Project‑scoped alternative:
 the repo's `AGENTS.md` is picked up automatically when you run Codex in the repo.
 
 ### 3. OpenCode
