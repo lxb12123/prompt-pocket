@@ -122,8 +122,21 @@
   .panel .head .dot{width:11px;height:11px;border-radius:50%;background:var(--accent);opacity:.85}
   .panel .head .label{font-size:13px;font-weight:700;color:var(--muted);font-family:var(--mono)}
   .panel .body{padding:18px 18px}
-  .qs-demo .frame{position:relative;height:100%;min-height:220px;display:flex;align-items:center;justify-content:center}
-  .qs-demo img,.qs-demo video{width:100%;height:auto;border-radius:10px;display:block;border:1px solid rgba(239,205,174,.7)}
+  .qs-demo .body{padding:0}
+  .qs-demo .frame{position:relative;display:block;min-height:0}
+  .qs-demo img{width:100%;height:auto;display:block}
+  .qs-demo .placeholder{margin:18px;width:auto}
+  .demo-zoom{position:relative;display:block;width:100%;padding:0;border:0;background:#1b1b1b;cursor:zoom-in;font:inherit}
+  .demo-zoom video{width:100%;height:auto;display:block}
+  .zoom-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(40,24,16,0);opacity:0;transition:opacity .18s ease,background .18s ease;pointer-events:none}
+  .demo-zoom:hover .zoom-ov,.demo-zoom:focus-visible .zoom-ov{opacity:1;background:rgba(40,24,16,.34)}
+  .zoom-ov .chip{display:flex;align-items:center;justify-content:center;width:62px;height:62px;border-radius:16px;background:rgba(255,255,255,.94);box-shadow:0 10px 26px rgba(0,0,0,.28);transform:scale(.88);transition:transform .18s ease}
+  .demo-zoom:hover .zoom-ov .chip{transform:scale(1)}
+  .zoom-ov svg{width:30px;height:30px;stroke:var(--accent);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .lightbox{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(28,16,10,.82);padding:4vh 4vw}
+  .lightbox.open{display:flex}
+  .lightbox video{max-width:96vw;max-height:92vh;width:auto;height:auto;border-radius:12px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .lb-close{position:absolute;top:18px;right:22px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:var(--text);font-size:20px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm)}
   .qs-demo img[src=""],.qs-demo img:not([src]){display:none}
   .placeholder{display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;min-height:200px;border:2px dashed var(--chip-border);border-radius:12px;color:var(--muted);font-weight:600;font-size:14px;background:var(--surface-soft)}
   .placeholder .pico{font-size:30px;opacity:.6}
@@ -251,7 +264,10 @@
         </div>
         <div class="body">
           <div class="frame">
-            <video id="demoVid" muted loop playsinline preload="metadata"></video>
+            <button type="button" class="demo-zoom" id="demoZoom" aria-label="放大查看 / Enlarge">
+              <video id="demoVid" muted loop playsinline preload="metadata"></video>
+              <span class="zoom-ov"><span class="chip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H5a1 1 0 0 0-1 1v4M15 4h4a1 1 0 0 1 1 1v4M9 20H5a1 1 0 0 1-1-1v-4M15 20h4a1 1 0 0 0 1-1v-4"/></svg></span></span>
+            </button>
             <img id="demoImg" alt="">
             <div class="placeholder" id="demoPlaceholder">
               <span class="pico">🦘</span>
@@ -278,6 +294,11 @@
   </div>
 </footer>
 
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button type="button" class="lb-close" id="lbClose" aria-label="关闭 / Close">✕</button>
+  <video id="lightboxVid" controls loop playsinline></video>
+</div>
+
 <script>
   var lang = 'en';
 
@@ -297,6 +318,7 @@
   function renderPlatform(){
     var p = PLATFORMS[platform];
     document.getElementById('cmdBlock').textContent = (lang === 'zh') ? p.cmd_zh : p.cmd_en;
+    var zoom = document.getElementById('demoZoom');
     var vid = document.getElementById('demoVid');
     var img = document.getElementById('demoImg');
     var ph = document.getElementById('demoPlaceholder');
@@ -305,13 +327,13 @@
 
     if (p.vid){
       img.style.display='none'; ph.style.display='none';
-      vid.style.display='block';
+      zoom.style.display='block';
       if (p.poster) vid.poster = p.poster;
       if (vid.dataset.src !== p.vid){ vid.src = p.vid; vid.dataset.src = p.vid; }
       var pr = vid.play(); if (pr && pr.catch) pr.catch(function(){});
       return;
     }
-    vid.pause(); vid.style.display='none';
+    zoom.style.display='none'; vid.pause();
     img.alt = p.label + (lang === 'zh' ? ' 演示' : ' demo');
     img.onload = function(){ img.style.display='block'; ph.style.display='none'; };
     img.onerror = function(){ img.style.display='none'; ph.style.display='flex'; };
@@ -389,6 +411,25 @@
     }catch(e){ return false; }
   }
   wireCopy('copyBtn');
+
+  // demo video lightbox (click the panel to enlarge)
+  (function(){
+    var lb = document.getElementById('lightbox');
+    var lbv = document.getElementById('lightboxVid');
+    var zoom = document.getElementById('demoZoom');
+    function openLb(){
+      var src = document.getElementById('demoVid').dataset.src;
+      if (!src) return;
+      if (lbv.getAttribute('src') !== src) lbv.src = src;
+      lb.classList.add('open'); lb.setAttribute('aria-hidden','false');
+      var pr = lbv.play(); if (pr && pr.catch) pr.catch(function(){});
+    }
+    function closeLb(){ lb.classList.remove('open'); lb.setAttribute('aria-hidden','true'); lbv.pause(); }
+    if (zoom) zoom.addEventListener('click', openLb);
+    document.getElementById('lbClose').addEventListener('click', closeLb);
+    lb.addEventListener('click', function(e){ if (e.target === lb) closeLb(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeLb(); });
+  })();
 
   applyLang();
 
