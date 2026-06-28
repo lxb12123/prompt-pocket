@@ -172,7 +172,7 @@ manual `add/find/edit/delete` work everywhere; **auto‑scan** is the only host�
 
 | Command | What it does |
 |---|---|
-| `/usually` | Scan recent sessions, then **list** your high‑frequency prompts (each with its `id`). Pick one and it runs immediately. |
+| `/usually` | Re‑scan recent sessions (pulls in newly‑frequent prompts & refreshes the `/usually:` dropdown), then **list** your high‑frequency prompts (each with its `id`). Pick one and it runs immediately. |
 | `/usually add <text>` | Manually save a prompt to the pocket. |
 | `/usually find <keyword>` | Search the pocket. |
 | `/usually edit <id> <new text>` | Change a saved prompt. Needs the prompt's **`id`** — see below. |
@@ -189,10 +189,17 @@ Manually added prompts always show, regardless of count.
 The `/` dropdown shows **command names only** — it does **not** preview your prompts inline,
 so typing `/usually` + a space shows nothing extra. To actually see them:
 
-1. **Browse & run** — type **`/usually:`** (with the colon). The dropdown fills with one
+1. **Quick‑run** — type **`/usually:`** (with the colon). The dropdown fills with one
    entry per saved prompt (`/usually:<slug>`); arrow to one and press Enter to run it.
-2. **List & manage** — run **`/usually`** (just press Enter, no args). It lists your prompts
-   so you can pick one to run.
+   This is the fast daily path, but it's a **snapshot** — it shows the prompts as of the
+   last refresh, and picking one does **not** re‑scan.
+2. **Refresh & list** — run **`/usually`** (just press Enter, no args). This **re‑scans your
+   recent sessions first**, so any prompt you've newly repeated 7+ times gets picked up and
+   added to the `/usually:` dropdown — then it lists everything for you to pick from.
+
+> **`/usually:` runs what you already have; `/usually` is what pulls in your latest
+> most‑used prompts.** The quick‑run dropdown only refreshes on `/usually`, `add`, `edit`,
+> or `delete`, so run a bare `/usually` now and then to keep it current.
 
 ### Finding a prompt's `id` (for `edit` / `delete`)
 
