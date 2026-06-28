@@ -109,6 +109,8 @@ From then on, just type **`/usually`** in any project. (Manual alternative: copy
 cp -r .agents/skills/usually ~/.codex/skills/usually
 ```
 
+After installing, open a new Codex thread. If `$usually` or `/skills` does not show it, restart Codex.
+
 Invoke: type `$usually list my usual prompts` (or `/skills` → pick Usually) — it lists your prompts numbered; reply with a number to run one. Codex has no per‑prompt dropdown. Project‑scoped alternative:
 the repo's `AGENTS.md` is picked up automatically when you run Codex in the repo.
 
