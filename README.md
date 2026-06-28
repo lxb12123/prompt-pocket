@@ -237,7 +237,8 @@ round‑trip:
 |---|---|---|
 | Claude Code | `/usually` | `/usually:<slug>` entries (slug = a readable fragment of the prompt); arrow‑pick one to run it |
 | OpenCode | `/usually` | same `/usually:<slug>` entries |
-| Codex | `/prompts:usually` | `/prompts:usually-<slug>` entries (Codex has no `/usually:` namespace; restart Codex to see new ones) |
+
+On **Codex** there is no slash dropdown — say **"list my usual prompts"** and reply with a number.
 
 The slug is a readable fragment of the prompt (letters/CJK/digits, ~16 chars, never cut
 mid‑ASCII‑word). The full prompt is deliberately **kept out of each entry's description** —
@@ -279,9 +280,7 @@ first `/prompt-pocket:usually` (or any `scan`/`add`/`edit`/`delete`), `sync` boo
 
 The bootstrap is **idempotent and marker‑gated**: it creates `usually.md` only if it's
 absent or already carries our `<!-- prompt-pocket:generated -->` marker, so it will **never
-overwrite a `usually.md` you wrote yourself**. (Codex has no bare‑command concept — every
-custom prompt is `/prompts:…` — so there is no bare `/usually` there; use
-`/prompts:usually-<slug>`.)
+overwrite a `usually.md` you wrote yourself**. (On Codex, say **"list my usual prompts"** and reply with a number.)
 
 ### Under the hood (0‑token core)
 

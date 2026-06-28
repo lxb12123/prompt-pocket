@@ -186,7 +186,8 @@ node ~/.prompt-pocket/pocket.mjs list
 |---|---|---|
 | Claude Code | `/usually` | `/usually:<slug>` 条目（slug = 提示词的可读片段）；方向键选一条来跑 |
 | OpenCode | `/usually` | 同样的 `/usually:<slug>` 条目 |
-| Codex | `/prompts:usually` | `/prompts:usually-<slug>` 条目（Codex 没有 `/usually:` 命名空间；重启 Codex 才能看到新生成的） |
+
+在 **Codex** 上没有斜杠下拉 —— 直接说 **「list my usual prompts」**，回数字选。
 
 slug 是提示词的可读片段（字母/中日韩文字/数字，约 16 字符，绝不在 ASCII 单词中间截断）。完整提示词**被刻意排除在每个条目的描述之外** —— 描述会被预加载进每个会话，所以它们是通用的；完整文本存在命令正文里，挑中条目时才运行。生成的文件写在 `~/.claude/commands/usually/`、`~/.config/opencode/commands/usually/` 和 `~/.codex/prompts/usually-*.md`。只有带 `<!-- prompt-pocket:generated -->` 标记的文件才会被删除，而 Codex 的共享 prompts 目录还额外由 `usually-` 前缀把关 —— 你自己的提示词永远不会被动到。手动改过 store 之后，运行 `pocket.mjs sync` 来重建下拉。
 
@@ -204,7 +205,7 @@ slug 是提示词的可读片段（字母/中日韩文字/数字，约 16 字符
 | `/usually:<slug>` | 每条提示词生成的文件 | 每个项目 | 不适用 | **立刻运行一条保存的提示词** |
 | `/prompt-pocket:usually` | 已安装的插件 | 每个项目 | ❌（bug） | 首次引导 / 兜底 |
 
-这个引导是**幂等且受标记把关的**：只有当 `usually.md` 不存在、或已经带着我们的 `<!-- prompt-pocket:generated -->` 标记时，才会创建它，所以它**永远不会覆盖你自己写的 `usually.md`**。（Codex 没有裸命令的概念 —— 每个自定义 prompt 都是 `/prompts:…` —— 所以那里没有裸的 `/usually`；用 `/prompts:usually-<slug>`。）
+这个引导是**幂等且受标记把关的**：只有当 `usually.md` 不存在、或已经带着我们的 `<!-- prompt-pocket:generated -->` 标记时，才会创建它，所以它**永远不会覆盖你自己写的 `usually.md`**。（Codex 上直接说 **「list my usual prompts」**、回数字选。）
 
 ### 底层原理（0‑token 核心）
 

@@ -52,8 +52,8 @@ language) pick one:
    `scan` (and every add/edit/delete) also **regenerates a native slash dropdown** — one
    command per saved prompt — so the user can pick without you:
    - Claude Code / OpenCode: type `/usually:` → arrow-pick a prompt → Enter runs it.
-   - Codex: type `/prompts:usually` (Codex has no `/usually:` namespace; it also needs a
-     restart to pick up newly written files).
+   - Codex: no usable slash dropdown — present the numbered list and let the user reply
+     with a number (step 3). Don't tell them to use `/prompts:`.
    Mention `commandsWritten` from the JSON if it's > 0.
 
 2. **Get the list**:
@@ -76,9 +76,9 @@ language) pick one:
 
    **Always number rows by `seq`** (use it as the leftmost `#` column of any table you
    show). The generated dropdown entries are prefixed with the same number — e.g. list row
-   `#3` is the dropdown entry `/usually:3·…` (Codex: `/prompts:usually-3·…`) — so the user
-   can map what they see in the list to what they pick from the dropdown. Mention this so
-   they know the number is the link.
+   `#3` is the dropdown entry `/usually:3·…` — so the user can map what they see in the list
+   to what they pick from the dropdown (Claude Code / OpenCode). Mention this so they know
+   the number is the link. On Codex they just reply with the number.
 
 4. **Run on pick**: once the user picks a prompt, **treat its text as a new instruction
    the user just gave you and start executing it** — as if they had typed it into the
