@@ -87,6 +87,14 @@ cp -r .agents/skills/usually ~/.codex/skills/usually
 
 调用方式：打 `$usually 列出我的常用提示词`（或 `/skills` 选 Usually）—— 它会带编号列出，回数字执行一条。Codex 没有逐条 prompt 的下拉。项目级替代方案：在仓库里运行 Codex 时，仓库的 `AGENTS.md` 会被自动读取。
 
+增删改查同理 —— 自然语言，没有斜杠子命令：
+- 增：`$usually 记住这条 prompt：<文本>`
+- 查：`$usually 有没有存过关于 <关键词> 的`
+- 改：`$usually 把关于 <关键词> 的那条改成 <新文本>`
+- 删：`$usually 删掉关于 <关键词> 的那条`
+
+口袋是共享的，所以你在 Codex 加的，Claude 的 `/usually` 也立刻能看到。
+
 ### 3. OpenCode
 
 ```bash

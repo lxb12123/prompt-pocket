@@ -114,6 +114,14 @@ After installing, open a new Codex thread. If `$usually` or `/skills` does not s
 Invoke: type `$usually list my usual prompts` (or `/skills` → pick Usually) — it lists your prompts numbered; reply with a number to run one. Codex has no per‑prompt dropdown. Project‑scoped alternative:
 the repo's `AGENTS.md` is picked up automatically when you run Codex in the repo.
 
+Manage prompts the same way — natural language, no slash sub‑commands:
+- Add: `$usually save this prompt: <text>`
+- Find: `$usually find my prompt about <keyword>`
+- Edit: `$usually change the <keyword> prompt to <new text>`
+- Delete: `$usually delete the <keyword> prompt`
+
+The pocket is shared, so anything you add in Codex also shows up in Claude's `/usually`.
+
 ### 3. OpenCode
 
 ```bash
