@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="zh">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Prompt Pocket — 别再重复打同一句 Prompt</title>
-<meta name="description" content="Prompt Pocket：存一次，从 / 下拉里选了就跑 —— 每个 AI agent 都能用。Claude Code、Codex、OpenCode、Cursor、Copilot、Gemini。">
+<title>Prompt Pocket — Stop re-typing the same prompt</title>
+<meta name="description" content="Prompt Pocket: save a prompt once, then run it from the /usually dropdown in every session — across Claude Code, Codex, OpenCode, Cursor, Copilot, and Gemini.">
 <link rel="icon" href="img/mascot-logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -163,7 +163,7 @@
     <div class="langdd" id="langdd">
       <button type="button" class="langdd-btn" id="langBtn" aria-haspopup="true" aria-expanded="false" aria-label="切换语言 / Switch language">
         <svg class="globe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18Z"/></svg>
-        <span id="langCurrent">中文</span>
+        <span id="langCurrent">English</span>
         <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
       <div class="langdd-menu" id="langMenu" role="menu">
@@ -268,7 +268,7 @@
 </footer>
 
 <script>
-  var lang = 'zh';
+  var lang = 'en';
 
   var PLATFORMS = {
     claude:   { label:"Claude Code",
