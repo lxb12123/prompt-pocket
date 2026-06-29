@@ -86,10 +86,6 @@ Then pick your platform:
 
 ### 1. Claude Code
 
-[![Claude Code demo — pick a saved prompt from the /usually: dropdown and it runs](docs/img/demo-claude-poster.jpg)](https://github.com/lxb12123/prompt-pocket/raw/main/docs/img/demo-claude.mp4)
-
-*▶ Click to play — install once → pick a saved prompt from the `/usually:` dropdown → it runs.*
-
 ```text
 /plugin marketplace add lxb12123/prompt-pocket
 /plugin install prompt-pocket@prompt-pocket-marketplace
