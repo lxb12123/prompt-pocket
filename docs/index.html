@@ -126,7 +126,7 @@
   .qs-demo .frame{position:relative;display:block;min-height:0}
   .qs-demo img{width:100%;height:auto;display:block}
   .qs-demo .placeholder{margin:18px;width:auto}
-  .demo-zoom{position:relative;display:block;width:100%;padding:0;border:0;background:#1b1b1b;cursor:zoom-in;font:inherit}
+  .demo-zoom{position:relative;display:block;width:100%;padding:0;border:0;background:#fff;cursor:zoom-in;font:inherit}
   .demo-zoom video{width:100%;height:auto;display:block}
   .zoom-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(40,24,16,0);opacity:0;transition:opacity .18s ease,background .18s ease;pointer-events:none}
   .demo-zoom:hover .zoom-ov,.demo-zoom:focus-visible .zoom-ov{opacity:1;background:rgba(40,24,16,.34)}
@@ -306,7 +306,7 @@
     claude:   { label:"Claude Code",
                 cmd_zh:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n/reload-plugins\n\n# 首次运行一次，之后直接用 /usually：\n/prompt-pocket:usually",
                 cmd_en:"/plugin marketplace add lxb12123/prompt-pocket\n/plugin install prompt-pocket@prompt-pocket-marketplace\n/reload-plugins\n\n# first run once, then just use /usually:\n/prompt-pocket:usually",
-                vid:"img/claude-demo-short-hq.mp4", poster:"img/claude-demo-poster.jpg", img:"" },
+                vid:"img/claude-demo-v3.mp4", poster:"img/claude-demo-v3.jpg", img:"" },
     codex:    { label:"Codex",
                 cmd_zh:"git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket\nmkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs\n\ncp -r .agents/skills/usually ~/.codex/skills/usually\n\n# 然后直接说：\nlist my usual prompts",
                 cmd_en:"git clone https://github.com/lxb12123/prompt-pocket && cd prompt-pocket\nmkdir -p ~/.prompt-pocket && cp skills/usually/scripts/pocket.mjs ~/.prompt-pocket/pocket.mjs\n\ncp -r .agents/skills/usually ~/.codex/skills/usually\n\n# then just say:\nlist my usual prompts",
