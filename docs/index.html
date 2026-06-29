@@ -325,6 +325,9 @@
       (lang === 'zh' ? '效果演示待补 · ' : 'Demo coming · ') + p.label;
 
     if (p.vid){
+      // drop any stale img handlers/load from a previous (placeholder) platform
+      // so a late onerror can't re-show the "Demo coming" box under the video
+      img.onerror = null; img.onload = null; img.removeAttribute('src');
       img.style.display='none'; ph.style.display='none';
       zoom.style.display='block';
       if (p.poster) vid.poster = p.poster;
