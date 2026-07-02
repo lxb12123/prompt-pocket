@@ -213,6 +213,12 @@ so typing `/usually` + a space shows nothing extra. To actually see them:
 > **`/usually:` runs what you already have; `/usually` is what pulls in your latest
 > most‑used prompts.** The quick‑run dropdown only refreshes on `/usually`, `add`, `edit`,
 > or `delete`, so run a bare `/usually` now and then to keep it current.
+>
+> Note: `add` / `edit` / `delete` only rewrite the dropdown **files on disk**. The
+> **session you're currently in** loaded its command list at startup and won't rescan the
+> command dir mid‑session — so a prompt you just added won't show up in *this* session's
+> `/usually:` dropdown until you run `/reload-plugins` (or open a new session). The data is
+> saved either way; only the live dropdown is stale.
 
 ### Finding a prompt's `id` (for `edit` / `delete`)
 
@@ -352,6 +358,42 @@ node ~/.prompt-pocket/pocket.mjs sync                                           
 > `SessionStart` hook keeps that file current for free — the other hosts then pick up the new
 > logic with no `cp`; only the per‑host **skill text** still needs a re‑copy (or a `git pull`
 > if project‑scoped).
+
+---
+
+## Uninstalling
+
+Prompt Pocket keeps everything local and leaves a small, predictable footprint — removing it is
+just deleting those files. Nothing was ever sent over the network, so there's nothing else to revoke.
+
+### Claude Code (installed as a plugin)
+
+```text
+/plugin uninstall prompt-pocket@prompt-pocket-marketplace
+```
+
+That also removes the bundled `SessionStart` hook. Then delete the generated slash‑command files
+and (optionally) the local store:
+
+```bash
+rm -rf ~/.claude/commands/usually ~/.claude/commands/usually.md   # generated /usually dropdown + manager command
+rm -rf ~/.prompt-pocket                                           # runtime core + your saved prompts (store.json)
+```
+
+> Keep `~/.prompt-pocket/store.json` if you might reinstall later — it's your saved prompts. Only
+> the marker‑gated generated files are yours to delete here; nothing else is touched.
+
+### Every other host (Codex / OpenCode / Cursor / Gemini / Copilot)
+
+Remove the skill dir you copied at install (see [Quick start](#quick-start) for the exact path per
+host — e.g. `~/.codex/skills/usually`, `~/.gemini/skills/usually`, or the shared
+`~/.agents/skills/usually`), then the generated dropdown files and the shared runtime:
+
+```bash
+rm -rf ~/.config/opencode/commands/usually      # OpenCode dropdown
+rm -f  ~/.codex/prompts/usually-*.md            # Codex dropdown (usually- prefix only — your own prompts are safe)
+rm -rf ~/.prompt-pocket                          # runtime core + store.json (drop this line to keep your prompts)
+```
 
 ---
 

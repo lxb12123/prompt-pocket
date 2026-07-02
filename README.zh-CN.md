@@ -167,6 +167,8 @@ mkdir -p ~/.agents/skills && cp -r .agents/skills/usually ~/.agents/skills/usual
 2. **刷新并列出** —— 运行 **`/usually`**（直接回车，不带参数）。它会**先重新扫描你最近的会话**，把你新近重复 ≥7 次的提示词收进来、补进 `/usually:` 下拉，然后列出全部让你挑。
 
 > **`/usually:` 跑的是你已有的；`/usually` 才会把你最新的高频提示词拉进来。** 快速运行的下拉只在 `/usually`、`add`、`edit`、`delete` 时刷新，所以隔段时间跑一次裸的 `/usually` 来保持它最新。
+>
+> 注意：`add` / `edit` / `delete` 只更新**磁盘上的下拉文件**。**你当前正在跑的这个会话**在启动时就把命令列表读进内存了，会话中途不会重扫命令目录——所以刚 `add` 的提示词在**本次会话**的 `/usually:` 下拉里不会立刻出现，要敲一次 `/reload-plugins`（或开新会话）才会进来。数据无论如何都已保存，过时的只是当前这份下拉。
 
 ### 找到提示词的 `id`（用于 `edit` / `delete`）
 
@@ -265,6 +267,41 @@ node ~/.prompt-pocket/pocket.mjs sync                                           
 ```
 
 > `~/.prompt-pocket/pocket.mjs` 由每个 host 共享。如果你这里也跑 Claude Code，它的 `SessionStart` hook 会免费帮你把那个文件保持最新 —— 其他 host 随后无需 `cp` 就能用上新逻辑；只有每个 host 的**skill 文本**还需要重新复制（项目级的话就 `git pull`）。
+
+---
+
+## 卸载
+
+Prompt Pocket 所有数据都在本地、留下的痕迹很小、可预测 —— 卸载就是删掉这些文件。全程从不联网，
+没有别的东西需要撤销。
+
+### Claude Code（作为插件安装）
+
+```text
+/plugin uninstall prompt-pocket@prompt-pocket-marketplace
+```
+
+这会一并移除随插件安装的 `SessionStart` hook。然后删掉生成的斜杠命令文件、以及（可选）本地存储：
+
+```bash
+rm -rf ~/.claude/commands/usually ~/.claude/commands/usually.md   # 生成的 /usually 下拉 + 管理命令
+rm -rf ~/.prompt-pocket                                           # 运行时核心 + 你保存的提示词（store.json）
+```
+
+> 如果以后可能重装，就**留着 `~/.prompt-pocket/store.json`** —— 那是你保存的提示词。这里只会删带标记的
+> 生成文件，别的一律不动。
+
+### 其它所有 host（Codex / OpenCode / Cursor / Gemini / Copilot）
+
+删掉你安装时复制进去的 skill 目录（每个 host 的确切路径见[快速开始](#快速开始) —— 如
+`~/.codex/skills/usually`、`~/.gemini/skills/usually`，或共享的 `~/.agents/skills/usually`），再删生成的
+下拉文件和共享运行时：
+
+```bash
+rm -rf ~/.config/opencode/commands/usually      # OpenCode 下拉
+rm -f  ~/.codex/prompts/usually-*.md            # Codex 下拉（只删 usually- 前缀 —— 你自己的提示词安全）
+rm -rf ~/.prompt-pocket                          # 运行时核心 + store.json（想保留提示词就删掉这一行）
+```
 
 ---
 
