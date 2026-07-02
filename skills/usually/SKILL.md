@@ -56,8 +56,9 @@ language) pick one:
    `scan` (and every add/edit/delete) also **regenerates a native slash dropdown** — one
    command per saved prompt — so the user can pick without you:
    - Claude Code / OpenCode: type `/usually:` → arrow-pick a prompt → Enter runs it.
-   - Codex: no usable slash dropdown — present the numbered list and let the user reply
-     with a number (step 3). Don't tell them to use `/prompts:`.
+   - Codex: the **app** surfaces each saved prompt in the `/` menu as
+     `/prompts:usually-N·<slug>` — arrow-pick → Enter runs it. In a plain TUI without that
+     picker, present the numbered list and let the user reply with a number (step 3).
    Mention `commandsWritten` from the JSON if it's > 0.
 
 2. **Get the list**:

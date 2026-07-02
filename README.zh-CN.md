@@ -85,7 +85,11 @@ cp -r .agents/skills/usually ~/.codex/skills/usually
 
 安装后新开一个 Codex 会话；如果 `$usually` 或 `/skills` 里还看不到，就重启 Codex。
 
-调用方式：打 `$usually 列出我的常用提示词`（或 `/skills` 选 Usually）—— 它会带编号列出，回数字执行一条。Codex 没有逐条 prompt 的下拉。项目级替代方案：在仓库里运行 Codex 时，仓库的 `AGENTS.md` 会被自动读取。
+调用方式：打 `$usually 列出我的常用提示词`（或 `/skills` 选 Usually）—— 它会带编号列出，回数字执行一条。**在 Codex app 里，每条保存的提示词还会出现在 `/` 菜单里，显示为 `/prompts:usually-N·<slug>` —— 方向键选中即跑，无需重打**（来自生成的 `~/.codex/prompts/usually-*.md` 文件）。若在没有该选择器的纯 TUI 里，就用编号列表。项目级替代方案：在仓库里运行 Codex 时，仓库的 `AGENTS.md` 会被自动读取。
+
+<img src="docs/img/codex-prompts-dropdown.png" alt="Codex app 的 / 菜单里，每条保存的 Prompt Pocket 提示词都是一个可选的 /prompts:usually-N 条目" width="640">
+
+*在 Codex app 里，保存的提示词直接出现在 `/` 菜单，显示为 `/prompts:usually-N` —— 方向键选中即跑。*
 
 增删改查同理 —— 自然语言，没有斜杠子命令：
 - 增：`$usually 记住这条 prompt：<文本>`
@@ -198,8 +202,9 @@ node ~/.prompt-pocket/pocket.mjs list
 |---|---|---|
 | Claude Code | `/usually` | `/usually:<slug>` 条目（slug = 提示词的可读片段）；方向键选一条来跑 |
 | OpenCode | `/usually` | 同样的 `/usually:<slug>` 条目 |
+| Codex（app） | `/` | `/prompts:usually-N·<slug>` 条目；方向键选一条来跑 |
 
-在 **Codex** 上没有斜杠下拉 —— 直接说 **「list my usual prompts」**，回数字选。
+在 **Codex app** 里，每条保存的提示词都会以 `/prompts:usually-*` 命令出现在 `/` 菜单里 —— 选中即跑。若在没有该选择器的纯 TUI 里，退回用 **「list my usual prompts」**、回数字选。
 
 slug 是提示词的可读片段（字母/中日韩文字/数字，约 16 字符，绝不在 ASCII 单词中间截断）。完整提示词**被刻意排除在每个条目的描述之外** —— 描述会被预加载进每个会话，所以它们是通用的；完整文本存在命令正文里，挑中条目时才运行。生成的文件写在 `~/.claude/commands/usually/`、`~/.config/opencode/commands/usually/` 和 `~/.codex/prompts/usually-*.md`。只有带 `<!-- prompt-pocket:generated -->` 标记的文件才会被删除，而 Codex 的共享 prompts 目录还额外由 `usually-` 前缀把关 —— 你自己的提示词永远不会被动到。手动改过 store 之后，运行 `pocket.mjs sync` 来重建下拉。
 

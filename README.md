@@ -46,7 +46,7 @@ compiles to each host's native format:
 | Platform | How it loads | Pick‑to‑run & manual CRUD | Auto‑scan (≥7×) |
 |---|---|---|---|
 | **Claude Code** | `/plugin install` (or `.claude/skills/`) | ✅ native arrow‑key menu | ✅ scans `~/.claude/projects` |
-| **Codex** | `~/.codex/skills/` or project `AGENTS.md` | ✅ numbered list | ✅ scans `~/.codex/sessions` |
+| **Codex** | `~/.codex/skills/` or project `AGENTS.md` | ✅ app `/prompts:` menu (numbered‑list fallback) | ✅ scans `~/.codex/sessions` |
 | **OpenCode** | native `SKILL.md` (`.opencode/skills/`, `.claude/skills/`) + `AGENTS.md` | ✅ numbered list | ✅ scans `~/.local/share/opencode/opencode.db` |
 | **Cursor** | `.cursor/rules/` + `AGENTS.md` (auto‑loads); SKILL.md skills (v2.4+) | ✅ | manual add (scan: add a reader) |
 | **GitHub Copilot** | `SKILL.md` in `.agents/skills` / `~/.copilot/skills` + `AGENTS.md` | ✅ | manual add (scan: add a reader) |
@@ -111,8 +111,12 @@ cp -r .agents/skills/usually ~/.codex/skills/usually
 
 After installing, open a new Codex thread. If `$usually` or `/skills` does not show it, restart Codex.
 
-Invoke: type `$usually list my usual prompts` (or `/skills` → pick Usually) — it lists your prompts numbered; reply with a number to run one. Codex has no per‑prompt dropdown. Project‑scoped alternative:
+Invoke: type `$usually list my usual prompts` (or `/skills` → pick Usually) — it lists your prompts numbered; reply with a number to run one. **In the Codex app, each saved prompt also appears in the `/` menu as `/prompts:usually-N·<slug>` — arrow‑pick one and it runs, no retyping** (these come from the generated `~/.codex/prompts/usually-*.md` files). In a plain TUI without that picker, use the numbered list. Project‑scoped alternative:
 the repo's `AGENTS.md` is picked up automatically when you run Codex in the repo.
+
+<img src="docs/img/codex-prompts-dropdown.png" alt="Codex app / menu showing each saved Prompt Pocket prompt as a pickable /prompts:usually-N entry" width="640">
+
+*In the Codex app, saved prompts appear right in the `/` menu as `/prompts:usually-N` — arrow‑pick one and it runs.*
 
 Manage prompts the same way — natural language, no slash sub‑commands:
 - Add: `$usually save this prompt: <text>`
@@ -253,8 +257,10 @@ round‑trip:
 |---|---|---|
 | Claude Code | `/usually` | `/usually:<slug>` entries (slug = a readable fragment of the prompt); arrow‑pick one to run it |
 | OpenCode | `/usually` | same `/usually:<slug>` entries |
+| Codex (app) | `/` | `/prompts:usually-N·<slug>` entries; arrow‑pick one to run it |
 
-On **Codex** there is no slash dropdown — say **"list my usual prompts"** and reply with a number.
+On **Codex** the app surfaces each saved prompt as a `/prompts:usually-*` command — pick and run.
+In a plain TUI without that picker, fall back to **"list my usual prompts"** and reply with a number.
 
 The slug is a readable fragment of the prompt (letters/CJK/digits, ~16 chars, never cut
 mid‑ASCII‑word). The full prompt is deliberately **kept out of each entry's description** —
